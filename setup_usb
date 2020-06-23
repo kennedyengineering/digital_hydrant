@@ -21,7 +21,7 @@ then
 	sudo mount /dev/mapper/USBDrive /media/USBDrive			# mount drive to mountpoint
 elif [ "$2" == "unmount" ]
 then
-	sudo unmount /media/USBDrive					# unmount from mountpoint
+	sudo umount /media/USBDrive					# unmount from mountpoint
 	sudo cryptsetup luksClose USBDrive				# close luks partition
 else
 	echo "No valid positional argument"

@@ -6,5 +6,5 @@
 
 "development notes"
 - After completing software, make SD card a readonly filesystem for stability. Use usb drive for storing logs
-- setup_usb is a script for managing the encrypted volume
+- setup_usb is a script for managing the encrypted volume, give device path "EX: /dev/sda" and operation "create, unmount, mount" running with sudo is not required
 

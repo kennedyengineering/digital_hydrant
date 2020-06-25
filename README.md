@@ -12,3 +12,4 @@
 - wifi interface may not be visible by "ifconfig", find interface name with "iwconfig", and then "ifconfig <interface> up"
 - interactive SQL prompt with bash command "sqlite3"
 - using SQLite3 because it is file/disk based and will be easier to use on the USB drive
+- the utils directory will be populated with tasks, with the purpose of independently gathering, parsing, and then storing data upon execution of the script

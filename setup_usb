@@ -14,7 +14,7 @@ then
 	sudo mkfs -t ext4 /dev/mapper/USBDrive				# create filesystem
 	sudo mkdir /media/USBDrive					# create mountpoint
 	sudo mount /dev/mapper/USBDrive /media/USBDrive			# mount drive to mountpoint
-	sudo chown ubuntu /media/USBDrive/				# change ownership of mountpoint
+	sudo chown $USER /media/USBDrive/				# change ownership of mountpoint
 elif [ "$2" == "mount" ]
 then
 	sudo cryptsetup luksOpen $1 USBDrive --key-file=$PWD/luks_key	# open luks partition

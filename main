@@ -1,0 +1,18 @@
+#!/bin/bash
+source config
+
+# find and mount hard drive, assumes that it has been configured with setup_usb/create
+if lsblk | grep -q "$drive_name";
+then
+	echo "drive found"
+	if lsblk | grep -q "$drive_path";
+	then
+		echo "$drive_name already mounted"
+	else
+		echo "$drive_name not mounted, mounting"
+		./setup_usb /dev/$drive_name mount
+	fi
+else
+	echo "drive not found"
+fi
+

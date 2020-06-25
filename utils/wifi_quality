@@ -1,0 +1,13 @@
+#!/bin/bash
+source config
+
+# hydrant utility, search for nearby wireless accesspoints
+table_name="wifi_quality"
+
+# verify that table exits
+if sqlite3 $drive_path/$db_name "SELECT name FROM sqlite_master WHERE type='table' AND name='$table_name';" | grep -q $table_name;
+then
+	echo "table exists for $table_name"
+else
+	echo "no table exists for $table_name, creating"
+fi

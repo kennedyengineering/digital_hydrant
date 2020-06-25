@@ -16,3 +16,4 @@ else
 	echo "drive not found"
 fi
 
+./utils/wifi_quality

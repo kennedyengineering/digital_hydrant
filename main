@@ -16,4 +16,9 @@ else
 	echo "drive not found"
 fi
 
+if $enable_wireless;
+then
+	./setup_wireless
+fi
+
 ./utils/wifi_quality

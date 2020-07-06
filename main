@@ -21,4 +21,5 @@ then
 	./setup_wireless
 fi
 
+# main loop, iterate through each script in utils directory
 ./utils/wifi_quality

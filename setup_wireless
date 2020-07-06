@@ -1,9 +1,9 @@
 #!/bin/bash
 source config
 
-interface_name=$(iwconfig 2>&1 | grep -v "no wireless extensions" | grep -oP "^\w+")	# if there are multiple interfaces the variable will act as an array
+interface_name=$(iwconfig 2>&1 | grep -v "no wireless extensions" | grep -oP "^\w+")	# finds names of wireless interfaces, if there are multiple interfaces the variable will act as an array
 
-activated_interface_name=$(ifconfig | grep -oP "^\w+")
+activated_interface_name=$(ifconfig | grep -oP "^\w+")		# finds names of currently activated interfaces
 
 array_contains () { 
     local array=$1[@]

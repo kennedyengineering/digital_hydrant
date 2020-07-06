@@ -4,7 +4,7 @@
 - shred
 - cryptsetup
 - wireless-tools
-- iw
+- egrep 
 - sqlite3
 
 "development notes"

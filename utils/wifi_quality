@@ -15,3 +15,5 @@ else
 	echo "no table exists for $table_name, creating"
 #	sqlite3 $drive_path/$db_name "CREATE TABLE $table_name ();"
 fi
+
+

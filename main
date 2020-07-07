@@ -22,4 +22,4 @@ then
 fi
 
 # main loop, iterate through each script in utils directory
-./utils/wifi_quality
+./utils/wifi_quality.py

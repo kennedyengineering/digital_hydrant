@@ -5,4 +5,7 @@ drive_path="/media/USBDrive"	# mountpoint for the drive
 
 db_name="hydrant.db"	# name of sqlite3 database, located on USB drive
 
+export db_name		# export so Python can load the database
+export drive_path	# ^^
+
 enable_wireless=true	# enable use of wireless interfaces

@@ -52,6 +52,56 @@ res = [simplified_output[i: j] for i, j in
 res.remove([])
 #print(res)
 
+for i in res:
+    # get variables per cell
+
+
+    # address:
+    address = i[i.index("Address:") + 1]
+    #print(address)
+
+
+    # encryption: 
+    encryption = i[i.index("Encryption") + 1]
+    #print(encryption)
+
+
+    # quality:
+    value = None
+    for ii in i:
+        if "Quality" in ii:
+            value = ii
+            break
+    value = value.split("=")
+    quality = value[1]
+    #print(quality)
+
+    # last beacon:
+    last_beacon = i[i.index("beacon:") + 1]
+    #print(last_beacon)
+
+
+    # ESSID:
+    value = None
+    for ii in i:
+        if "ESSID" in ii:
+            value = ii
+            break
+    index = i.index(value)
+
+    # compensate for ESSID's with whitespace
+    x = 0
+    value = ""
+    while i[index + x] != "Extra:":
+        value += i[index + x] + " "
+        x += 1
+    if value != "":
+        value = value[:-1]
+
+    value = value.split(":")
+    essid = value[1]
+    #print(essid)
+
 #commit the changes to db			
 conn.commit()
 #close the connection

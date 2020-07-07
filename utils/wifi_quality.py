@@ -21,12 +21,13 @@ c = conn.cursor()
 # verify that the table exists, get a count
 c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{}' '''.format(table_name))
 
-#if the count is 1, then table exists
+# if the count is 1, then table exists
+# else, create the table    # could use CREATE TABLE IF NOT EXISTS to eliminate the need to check if the table exists
 if c.fetchone()[0]==1 :
     print("table exists for {}, continuing".format(table_name))
 else:
     print("no table exists for {}, creating".format(table_name))
-    #c.execute('''CREATE TABLE students (rollno real, name text, class real)''')
+    c.execute('''CREATE TABLE {} (ADDRESS TEXT, ENCRYPTION TEXT, QUALITY TEXT, LAST_BEACON TEXT, ESSID TEXT)'''.format(table_name))
 
 # scrape the command line utility
 output = subprocess.run("sudo iwlist wlan0 scanning | egrep 'Cell |Encryption|Quality|Last beacon|ESSID' | tr -d '\n'", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
@@ -76,6 +77,7 @@ for i in res:
     quality = value[1]
     #print(quality)
 
+
     # last beacon:
     last_beacon = i[i.index("beacon:") + 1]
     #print(last_beacon)
@@ -101,6 +103,10 @@ for i in res:
     value = value.split(":")
     essid = value[1]
     #print(essid)
+
+
+    # store to table:   # quotes were added to some strings to comply with SQL syntax
+    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {})'''.format(table_name,'"'+str(address)+'"', '"'+str(encryption)+'"', '"'+str(quality)+'"', '"'+str(last_beacon)+'"', str(essid)))
 
 #commit the changes to db			
 conn.commit()

@@ -8,6 +8,7 @@
 import sqlite3
 import os
 import subprocess
+import datetime
 
 table_name = "wifi_quality"
 
@@ -27,7 +28,7 @@ if c.fetchone()[0]==1 :
     print("table exists for {}, continuing".format(table_name))
 else:
     print("no table exists for {}, creating".format(table_name))
-    c.execute('''CREATE TABLE {} (ADDRESS TEXT, ENCRYPTION TEXT, QUALITY TEXT, LAST_BEACON TEXT, ESSID TEXT)'''.format(table_name))
+    c.execute('''CREATE TABLE {} (ADDRESS TEXT, ENCRYPTION TEXT, QUALITY TEXT, LAST_BEACON TEXT, ESSID TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
 output = subprocess.run("sudo iwlist wlan0 scanning | egrep 'Cell |Encryption|Quality|Last beacon|ESSID' | tr -d '\n'", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
@@ -106,7 +107,7 @@ for i in res:
 
 
     # store to table:   # quotes were added to some strings to comply with SQL syntax
-    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {})'''.format(table_name,'"'+str(address)+'"', '"'+str(encryption)+'"', '"'+str(quality)+'"', '"'+str(last_beacon)+'"', str(essid)))
+    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name,'"'+str(address)+'"', '"'+str(encryption)+'"', '"'+str(quality)+'"', '"'+str(last_beacon)+'"', str(essid), '"'+str(datetime.datetime.now())+'"'))
 
 #commit the changes to db			
 conn.commit()

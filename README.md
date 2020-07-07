@@ -7,6 +7,7 @@
 - egrep 
 - sqlite3
 - netdiscover
+- lldpd
 
 "development notes"
 - After completing software, make SD card a readonly filesystem for stability. Use usb drive for storing logs

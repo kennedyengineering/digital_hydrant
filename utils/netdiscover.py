@@ -32,6 +32,7 @@ else:
     c.execute('''CREATE TABLE {} (IP TEXT, MAC_ADDRESS TEXT, HOSTNAME TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility   # netdiscover either runs indefinetely or just a really long time, a timeout is needed, set in seconds
+print("collecting data for table {}".format(table_name))
 output = subprocess.run("sudo timeout 10 sudo netdiscover -N -P", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 #print(output)
 

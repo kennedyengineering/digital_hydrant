@@ -31,6 +31,7 @@ else:
     c.execute('''CREATE TABLE {} (ADDRESS TEXT, ENCRYPTION TEXT, QUALITY TEXT, LAST_BEACON TEXT, ESSID TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
+print("collecting data for table {}".format(table_name))
 output = subprocess.run("sudo iwlist wlan0 scanning | egrep 'Cell |Encryption|Quality|Last beacon|ESSID' | tr -d '\n'", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 #print(output)
 

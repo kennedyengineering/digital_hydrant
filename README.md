@@ -8,6 +8,8 @@
 - sqlite3
 - netdiscover
 - lldpd
+- iw
+- wpasupplicant
 
 "development notes"
 - After completing software, make SD card a readonly filesystem for stability. Use usb drive for storing logs
@@ -20,3 +22,4 @@
 - the python scripts cannot be run independently of the main program due to it relying on environment variables being exported in "config" file
 - sqlitebrowser is an opensource sqlite GUI, works well for visualizing data entry and works well over SSH X-forwarding
 - lldpd is the daemon/service, after installing should be activated with "service lldpd start"
+- netplan is used to configure wifi on ubuntu 20.04, this link should help: https://linuxconfig.org/ubuntu-20-04-connect-to-wifi-from-command-line

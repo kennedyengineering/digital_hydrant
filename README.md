@@ -19,3 +19,4 @@
 - utilities were originally written in bash but moved to python equivalent scripts due to python supporting sqlite3 natively and having far superior string manipulating capabilities
 - the python scripts cannot be run independently of the main program due to it relying on environment variables being exported in "config" file
 - sqlitebrowser is an opensource sqlite GUI, works well for visualizing data entry and works well over SSH X-forwarding
+- lldpd is the daemon/service, after installing should be activated with "service lldpd start"

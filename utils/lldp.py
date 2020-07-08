@@ -39,30 +39,34 @@ output = subprocess.run("lldpctl -f json", shell=True, stdout=subprocess.PIPE).s
 
 # parse the output into desired variables
 output = json.loads(output)
-for i in output["lldp"]["interface"]:   # iterate per interface
-    # SysName
-    sysname = list(output["lldp"]["interface"][i]["chassis"].keys())[0]
-    #print(sysname)
+try:
+    for i in output["lldp"]["interface"]:   # iterate per interface
+        # SysName
+        sysname = list(output["lldp"]["interface"][i]["chassis"].keys())[0]
+        #print(sysname)
 
-    # SysDescr
-    sysdescr = output["lldp"]["interface"][i]["chassis"][sysname]["descr"]
-    #print(sysdescr)
-   
-    # PortID
-    portid = output["lldp"]["interface"][i]["port"]["id"]["type"]
-    portid += " " + output["lldp"]["interface"][i]["port"]["id"]["value"]
-    #print(portid)
+        # SysDescr
+        sysdescr = output["lldp"]["interface"][i]["chassis"][sysname]["descr"]
+        #print(sysdescr)
+       
+        # PortID
+        portid = output["lldp"]["interface"][i]["port"]["id"]["type"]
+        portid += " " + output["lldp"]["interface"][i]["port"]["id"]["value"]
+        #print(portid)
 
-    # MgmtIP
-    mgmtip = output["lldp"]["interface"][i]["chassis"][sysname]["mgmt-ip"]
-    #print(mgmtip)
+        # MgmtIP
+        mgmtip = output["lldp"]["interface"][i]["chassis"][sysname]["mgmt-ip"]
+        #print(mgmtip)
 
-    # vlan-id
-    vlanid = int(output["lldp"]["interface"][i]["vlan"]["vlan-id"])
-    #print(vlanid, type(vlanid))
+        # vlan-id
+        vlanid = int(output["lldp"]["interface"][i]["vlan"]["vlan-id"])
+        #print(vlanid, type(vlanid))
 
-    # store to table:   # quotes were added to some strings to comply with SQL syntax
-    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name, '"'+str(sysname)+'"', '"'+str(sysdescr)+'"', '"'+str(portid)+'"', '"'+str(mgmtip)+'"', vlanid, '"'+str(datetime.datetime.now())+'"'))
+        # store to table:   # quotes were added to some strings to comply with SQL syntax
+        c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name, '"'+str(sysname)+'"', '"'+str(sysdescr)+'"', '"'+str(portid)+'"', '"'+str(mgmtip)+'"', vlanid, '"'+str(datetime.datetime.now())+'"'))
+
+except KeyError:
+    print("no interface found")
 
 #commit the changes to db			
 conn.commit()

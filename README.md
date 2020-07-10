@@ -23,3 +23,4 @@
 - sqlitebrowser is an opensource sqlite GUI, works well for visualizing data entry and works well over SSH X-forwarding
 - lldpd is the daemon/service, after installing should be activated with "service lldpd start"
 - netplan is used to configure wifi on ubuntu 20.04, this link should help: https://linuxconfig.org/ubuntu-20-04-connect-to-wifi-from-command-line
+- netplan abstracts to "systemd-networkd" (ubuntu server 20.04)

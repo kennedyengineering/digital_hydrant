@@ -45,7 +45,7 @@ print("collecting data for table {}".format(table_name))
 output = subprocess.run("iw dev | grep Interface", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 output = output.split(" ")
 wireless_interface = output[1][:-1]
-print(wireless_interface)
+#print(wireless_interface)
 
 # generate wpa passphrase:
 wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplicant.conf'.format(essid, passwd), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')

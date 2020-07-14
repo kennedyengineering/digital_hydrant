@@ -46,9 +46,22 @@ wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplic
 print(wpa_pass)
 
 # connect to wireless access point
-output = subprocess.run("sudo wpa_supplicant -c utils/temp/wpa_supplicant.conf -i {}".format(wireless_interface), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+#output = subprocess.run("sudo wpa_supplicant -c utils/temp/wpa_supplicant.conf -i {}".format(wireless_interface), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+wpa_supplicant = subprocess.Popen("sudo wpa_supplicant -c utils/temp/wpa_supplicant.conf -i {}".format(wireless_interface), shell=True, stdout=subprocess.PIPE)
+for line in iter(wpa_supplicant.stdout.readline, ''):
+    line = line.decode('utf-8')
+    print(line)
+    if line.find("CTRL-EVENT-CONNECTED") != -1:
+        print("Wireless is Connected")
+        break
 
+wpa_supplicant.kill()
 
+# start DHClient
+# sudo dhclient wlan0
+
+# delete temp files
+# rm utils/temp/wpa_supplicant.conf
 
 
 

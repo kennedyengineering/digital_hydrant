@@ -67,6 +67,10 @@ wpa_supplicant.kill()
 # start DHClient
 # sudo dhclient wlan0
 
+# bring wireless interface down and up again "reset it"
+os.system("sudo ifconfig {} down".format(wireless_interface))
+os.system("sudo ifconfig {} up".format(wireless_interface))
+
 # delete temp files
 # rm utils/temp/wpa_supplicant.conf
 os.remove("utils/temp/wpa_supplicant.conf")

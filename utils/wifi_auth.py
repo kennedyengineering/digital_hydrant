@@ -28,7 +28,7 @@ if c.fetchone()[0]==1 :
     print("table exists for {}, continuing".format(table_name))
 else:
     print("no table exists for {}, creating".format(table_name))
-    c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, DATETIME TIMESTAMP)'''.format(table_name))
+    c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, ESSID TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
 print("collecting data for table {}".format(table_name))
@@ -48,7 +48,7 @@ passwd = parsed_config_file["networks"][essid][0]
 
 # generate wpa passphrase:
 wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplicant.conf'.format(essid, passwd), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
-print(wpa_pass)
+#print(wpa_pass)
 
 # connect to wireless access point
 tic = time.perf_counter()
@@ -73,7 +73,7 @@ os.remove("utils/temp/wpa_supplicant.conf")
 
 # parse the output into desired variables
 # store to table:   # quotes were added to some strings to comply with SQL syntax
-c.execute('''INSERT INTO {} VALUES("{}", "{}")'''.format(table_name, str(auth_time), str(datetime.datetime.now())))
+c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}")'''.format(table_name, str(auth_time), str(essid), str(datetime.datetime.now())))
 
 #commit the changes to db			
 conn.commit()

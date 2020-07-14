@@ -9,6 +9,7 @@ import sqlite3
 import os
 import subprocess
 import datetime
+import time
 
 table_name = "wifi_auth"
 
@@ -46,15 +47,16 @@ wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplic
 print(wpa_pass)
 
 # connect to wireless access point
-#output = subprocess.run("sudo wpa_supplicant -c utils/temp/wpa_supplicant.conf -i {}".format(wireless_interface), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+tic = time.perf_counter()
 wpa_supplicant = subprocess.Popen("sudo wpa_supplicant -c utils/temp/wpa_supplicant.conf -i {}".format(wireless_interface), shell=True, stdout=subprocess.PIPE)
 for line in iter(wpa_supplicant.stdout.readline, ''):
     line = line.decode('utf-8')
     print(line)
     if line.find("CTRL-EVENT-CONNECTED") != -1:
         print("Wireless is Connected")
+        toc = time.perf_counter()
+        print("Authentication time: {} seconds".format(toc-tic))
         break
-
 wpa_supplicant.kill()
 
 # start DHClient

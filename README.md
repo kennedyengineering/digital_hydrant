@@ -24,3 +24,5 @@
 - lldpd is the daemon/service, after installing should be activated with "service lldpd start"
 - netplan is used to configure wifi on ubuntu 20.04, this link should help: https://linuxconfig.org/ubuntu-20-04-connect-to-wifi-from-command-line
 - netplan abstracts to "systemd-networkd" (ubuntu server 20.04)
+- you can avoid using netplan by just using wpa_supplicant
+- closing wpa_supplicant prematurely can leave an extra interface listing in "iw dev" which can be removed by bringing the physical interface (wlan0) "down" and back "up" with ifconfig

@@ -10,7 +10,15 @@ import os
 import subprocess
 import datetime
 import time
-import yaml
+import sys
+
+# check parameters, use for essid and passwd variable definitions   # 3 because the first is the file name -- wifi_auth.py
+if len(sys.argv) != 3:
+    print("ESSID and PASSWD were not provided, exiting")
+    exit()
+essid = sys.argv[1]
+passwd = sys.argv[2]
+#print(essid, passwd)
 
 table_name = "wifi_auth"
 
@@ -38,13 +46,6 @@ output = subprocess.run("iw dev | grep Interface", shell=True, stdout=subprocess
 output = output.split(" ")
 wireless_interface = output[1][:-1]
 print(wireless_interface)
-
-# load wifi credentials
-config_file = open("utils/config/wifi_auth.yml")
-parsed_config_file = yaml.load(config_file, Loader=yaml.FullLoader)
-network_list = list(parsed_config_file["networks"].keys())
-essid = network_list[0]
-passwd = parsed_config_file["networks"][essid][0]
 
 # generate wpa passphrase:
 wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplicant.conf'.format(essid, passwd), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')

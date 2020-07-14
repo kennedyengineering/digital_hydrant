@@ -2,7 +2,7 @@
 
 # hydrant utility, find the time it takes for a wireless access point to authenticate and connect to the internet
 # script will run through once, and store gathered data in the database
-# command utility to scrape: ?
+# command utility to scrape: None -- using timers
 # gather information: auth_time, ?
 
 import sqlite3
@@ -10,6 +10,7 @@ import os
 import subprocess
 import datetime
 import time
+import yaml
 
 table_name = "wifi_auth"
 
@@ -27,20 +28,23 @@ if c.fetchone()[0]==1 :
     print("table exists for {}, continuing".format(table_name))
 else:
     print("no table exists for {}, creating".format(table_name))
-    #c.execute('''CREATE TABLE {} (SYSTEM_NAME TEXT, SYSTEM_DESCRIPTION TEXT, PORT_ID TEXT, MANAGEMENT_IP TEXT, VLAN_ID INTEGER, DATETIME TIMESTAMP)'''.format(table_name))
+    c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
 print("collecting data for table {}".format(table_name))
 
 # find name of wireless interface:
-output = subprocess.run("iw dev | grep -i Interface", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+output = subprocess.run("iw dev | grep Interface", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 output = output.split(" ")
 wireless_interface = output[1][:-1]
 print(wireless_interface)
 
 # load wifi credentials
-essid = "Outside Open"
-passwd = "cylonbase4starswar"
+config_file = open("utils/config/wifi_auth.yml")
+parsed_config_file = yaml.load(config_file, Loader=yaml.FullLoader)
+network_list = list(parsed_config_file["networks"].keys())
+essid = network_list[0]
+passwd = parsed_config_file["networks"][essid][0]
 
 # generate wpa passphrase:
 wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplicant.conf'.format(essid, passwd), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
@@ -55,7 +59,8 @@ for line in iter(wpa_supplicant.stdout.readline, ''):
     if line.find("CTRL-EVENT-CONNECTED") != -1:
         print("Wireless is Connected")
         toc = time.perf_counter()
-        print("Authentication time: {} seconds".format(toc-tic))
+        auth_time = toc-tic
+        print("Authentication time: {} seconds".format(auth_time))
         break
 wpa_supplicant.kill()
 
@@ -65,18 +70,9 @@ wpa_supplicant.kill()
 # delete temp files
 # rm utils/temp/wpa_supplicant.conf
 
-
-
-
-
-
-
-
-
 # parse the output into desired variables
-    
-    # store to table:   # quotes were added to some strings to comply with SQL syntax
-    #c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name, '"'+str(sysname)+'"', '"'+str(sysdescr)+'"', '"'+str(portid)+'"', '"'+str(mgmtip)+'"', vlanid, '"'+str(datetime.datetime.now())+'"'))
+# store to table:   # quotes were added to some strings to comply with SQL syntax
+c.execute('''INSERT INTO {} VALUES("{}", "{}")'''.format(table_name, str(auth_time), str(datetime.datetime.now())))
 
 #commit the changes to db			
 conn.commit()

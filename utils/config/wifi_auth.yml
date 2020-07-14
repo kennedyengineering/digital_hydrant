@@ -1,0 +1,7 @@
+---
+# configuration file for wifi_auth.py utility script
+# used for storing credentials
+
+networks:
+        Outside Open:
+                - cylonbase4starswar

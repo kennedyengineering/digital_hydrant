@@ -69,6 +69,7 @@ wpa_supplicant.kill()
 
 # delete temp files
 # rm utils/temp/wpa_supplicant.conf
+os.remove("utils/temp/wpa_supplicant.conf")
 
 # parse the output into desired variables
 # store to table:   # quotes were added to some strings to comply with SQL syntax

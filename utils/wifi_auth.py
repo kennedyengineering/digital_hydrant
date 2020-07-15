@@ -54,15 +54,25 @@ wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplic
 # connect to wireless access point
 tic = time.perf_counter()
 wpa_supplicant = subprocess.Popen("sudo wpa_supplicant -c utils/temp/wpa_supplicant.conf -i {}".format(wireless_interface), shell=True, stdout=subprocess.PIPE)
+auth_timeout = 30
 for line in iter(wpa_supplicant.stdout.readline, ''):
     line = line.decode('utf-8')
     print(line)
+    toc = time.perf_counter()
+    auth_time = toc-tic
     if line.find("CTRL-EVENT-CONNECTED") != -1:
         print("Wireless is Connected")
-        toc = time.perf_counter()
-        auth_time = toc-tic
         print("Authentication time: {} seconds".format(auth_time))
         break
+    elif auth_time > auth_timeout:
+        print("Authentication timeout reached, exiting...")
+        auth_time = -1
+        break
+    elif line.find("CTRL-EVENT-DISCONNECTED") != -1:
+        print("Authentication failed, exiting...")
+        auth_time = -1
+        break
+
 wpa_supplicant.kill()
 
 # start DHClient

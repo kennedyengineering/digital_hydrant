@@ -10,6 +10,8 @@
 - lldpd
 - iw
 - wpasupplicant
+- speedtest-cli
+- iperf
 
 "development notes"
 - After completing software, make SD card a readonly filesystem for stability. Use usb drive for storing logs
@@ -26,3 +28,6 @@
 - netplan abstracts to "systemd-networkd" (ubuntu server 20.04)
 - you can avoid using netplan by just using wpa_supplicant
 - closing wpa_supplicant prematurely can leave an extra interface listing in "iw dev" which can be removed by bringing the physical interface (wlan0) "down" and back "up" with ifconfig
+- iperf is used for measuring network bandwith, on one computer run "iperf -s" to start server, and on the client run "iperf -c <IP_ADDRESS> -n <size>M" to connect to server and request payload of specified size in Megabytes
+- testing the Raspberry Pi 4 shows that it has a 62.5 Mbit/sec wireless bandwidth when connected to a 5GHZ network
+- speedtest-cli is a command for measuring internet upload and download speeds, use "speedtest-cli" to see results

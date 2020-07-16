@@ -100,78 +100,92 @@ if auth_time != -1:
         print("No IP found")
 
 # check AP address, check link quality, check signal level, check frequency, check bit rate, check tx power
-if auth_time != -1:
-    output = subprocess.run("iwconfig 2>&1 | grep -v 'no wireless extensions'", shell=True, stdout=subprocess.PIPE).stdout.decode("utf-8")
-    # split by empty line
-    output = output.split("\n\n")
-    # find entry for wireless interface in use
-    for interface in output:
-        if interface.find(wireless_interface) != -1:
-            line = interface
-            break
-    # process data
-    line = line.split("  ")
-    #print(line)
-    
-    # check AP address
-    entry = ""
-    for group in line:
-        if group.find("Access Point") != -1:
-            entry = group
-            break
-    entry = entry.split()
-    AP_address = entry[2]
-    #print(AP_address)
+AP_address = ""
+link_quality = ""
+signal_level = ""
+frequency = ""
+bit_rate = ""
+tx_power = ""
+loaded = False  # sometimes there will be an index out of range error because iwconfig hasn't loaded all variables by time of polling   # instead of waiting, poll again so it runs as fast as possible
+while loaded == False:
+    try:
+        if auth_time != -1:
+            output = subprocess.run("iwconfig 2>&1 | grep -v 'no wireless extensions'", shell=True, stdout=subprocess.PIPE).stdout.decode("utf-8")
+            # split by empty line
+            output = output.split("\n\n")
+            # find entry for wireless interface in use
+            for interface in output:
+                if interface.find(wireless_interface) != -1:
+                    line = interface
+                    break
+            # process data
+            line = line.split("  ")
+            #print(line)
+            
+            # check AP address
+            entry = ""
+            for group in line:
+                if group.find("Access Point") != -1:
+                    entry = group
+                    break
+            entry = entry.split()
+            AP_address = entry[2]
+            #print(AP_address)
 
-    # check link quality
-    entry = ""
-    for group in line:
-        if group.find("Link Quality") != -1:
-            entry = group
-            break
-    entry = entry.split("=")
-    link_quality = entry[1]
-    #print(link_quality)
+            # check link quality
+            entry = ""
+            for group in line:
+                if group.find("Link Quality") != -1:
+                    entry = group
+                    break
+            entry = entry.split("=")
+            link_quality = entry[1]
+            #print(link_quality)
 
-    # check signal level
-    entry = ""
-    for group in line:
-        if group.find("Signal level") != -1:
-            entry = group
-            break
-    entry = entry.split("=")
-    signal_level = entry[1]
-    #print(signal_level)
+            # check signal level
+            entry = ""
+            for group in line:
+                if group.find("Signal level") != -1:
+                    entry = group
+                    break
+            entry = entry.split("=")
+            signal_level = entry[1]
+            #print(signal_level)
 
-    # check frequency
-    entry = ""
-    for group in line:
-        if group.find("Frequency") != -1:
-            entry = group
-            break
-    entry = entry.split(":")
-    frequency = entry[1]
-    #print(frequency)
+            # check frequency
+            entry = ""
+            for group in line:
+                if group.find("Frequency") != -1:
+                    entry = group
+                    break
+            entry = entry.split(":")
+            frequency = entry[1]
+            #print(frequency)
 
-    # check bit rate
-    entry = ""
-    for group in line:
-        if group.find("Bit Rate") != -1:
-            entry = group
-            break
-    entry = entry.split("=")
-    bit_rate = entry[1]
-    #print(bit_rate)
+            # check bit rate
+            entry = ""
+            for group in line:
+                if group.find("Bit Rate") != -1:
+                    entry = group
+                    break
+            entry = entry.split("=")
+            bit_rate = entry[1]
+            #print(bit_rate)
 
-    # check tx power
-    entry = ""
-    for group in line:
-        if group.find("Tx-Power") != -1:
-            entry = group
-            break
-    entry = entry.split("=")
-    tx_power = entry[1]
-    #print(tx_power)
+            # check tx power
+            entry = ""
+            for group in line:
+                if group.find("Tx-Power") != -1:
+                    entry = group
+                    break
+            entry = entry.split("=")
+            tx_power = entry[1]
+            #print(tx_power)
+
+            loaded = True
+    except IndexError:
+        print("Error scraping iwconfig, retrying...")
+        loaded = False
 
 wpa_supplicant.kill()
 

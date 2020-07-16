@@ -3,7 +3,7 @@
 # hydrant utility, find the time it takes for a wireless access point to authenticate and connect to the internet
 # script will run through once, and store gathered data in the database
 # command utility to scrape: None -- using timers
-# gather information: auth_time, inet6_address
+# gather information: auth_time, essid, inet6_address, AP address, link_quality, signal_level, frequency, bit_rate, Tx-Power
 
 import sqlite3
 import os
@@ -36,7 +36,7 @@ if c.fetchone()[0]==1 :
     print("table exists for {}, continuing".format(table_name))
 else:
     print("no table exists for {}, creating".format(table_name))
-    c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, ESSID TEXT, INET6_ADDRESS TEXT, DATETIME TIMESTAMP)'''.format(table_name))
+    c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, ESSID TEXT, INET6_ADDRESS TEXT, AP_ADDRESS TEXT, LINK_QUALITY TEXT, SIGNAL_LEVEL TEXT, FREQUENCY TEXT, BIT_RATE TEXT, TX_POWER TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
 print("collecting data for table {}".format(table_name))
@@ -99,6 +99,80 @@ if auth_time != -1:
     else:
         print("No IP found")
 
+# check AP address, check link quality, check signal level, check frequency, check bit rate, check tx power
+if auth_time != -1:
+    output = subprocess.run("iwconfig 2>&1 | grep -v 'no wireless extensions'", shell=True, stdout=subprocess.PIPE).stdout.decode("utf-8")
+    # split by empty line
+    output = output.split("\n\n")
+    # find entry for wireless interface in use
+    for interface in output:
+        if interface.find(wireless_interface) != -1:
+            line = interface
+            break
+    # process data
+    line = line.split("  ")
+    #print(line)
+    
+    # check AP address
+    entry = ""
+    for group in line:
+        if group.find("Access Point") != -1:
+            entry = group
+            break
+    entry = entry.split()
+    AP_address = entry[2]
+    #print(AP_address)
+
+    # check link quality
+    entry = ""
+    for group in line:
+        if group.find("Link Quality") != -1:
+            entry = group
+            break
+    entry = entry.split("=")
+    link_quality = entry[1]
+    #print(link_quality)
+
+    # check signal level
+    entry = ""
+    for group in line:
+        if group.find("Signal level") != -1:
+            entry = group
+            break
+    entry = entry.split("=")
+    signal_level = entry[1]
+    #print(signal_level)
+
+    # check frequency
+    entry = ""
+    for group in line:
+        if group.find("Frequency") != -1:
+            entry = group
+            break
+    entry = entry.split(":")
+    frequency = entry[1]
+    #print(frequency)
+
+    # check bit rate
+    entry = ""
+    for group in line:
+        if group.find("Bit Rate") != -1:
+            entry = group
+            break
+    entry = entry.split("=")
+    bit_rate = entry[1]
+    print(bit_rate)
+
+    # check tx power
+    entry = ""
+    for group in line:
+        if group.find("Tx-Power") != -1:
+            entry = group
+            break
+    entry = entry.split("=")
+    tx_power = entry[1]
+    #print(tx_power)
+
 wpa_supplicant.kill()
 
 # start DHClient
@@ -112,9 +186,8 @@ os.system("sudo ifconfig {} up".format(wireless_interface))
 # rm utils/temp/wpa_supplicant.conf
 os.remove("utils/temp/wpa_supplicant.conf")
 
-# parse the output into desired variables
 # store to table:   # quotes were added to some strings to comply with SQL syntax
-c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}")'''.format(table_name, str(auth_time), str(essid), str(inet6_addr), str(datetime.datetime.now())))
+c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}")'''.format(table_name, str(auth_time), str(essid), str(inet6_addr), str(AP_address), str(link_quality), str(signal_level), str(frequency), str(bit_rate), str(tx_power), str(datetime.datetime.now())))
 
 #commit the changes to db			
 conn.commit()

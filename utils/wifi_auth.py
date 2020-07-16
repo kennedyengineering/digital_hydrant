@@ -3,7 +3,7 @@
 # hydrant utility, find the time it takes for a wireless access point to authenticate and connect to the internet
 # script will run through once, and store gathered data in the database
 # command utility to scrape: None -- using timers
-# gather information: auth_time, ?
+# gather information: auth_time, inet6_address
 
 import sqlite3
 import os
@@ -36,7 +36,7 @@ if c.fetchone()[0]==1 :
     print("table exists for {}, continuing".format(table_name))
 else:
     print("no table exists for {}, creating".format(table_name))
-    c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, ESSID TEXT, DATETIME TIMESTAMP)'''.format(table_name))
+    c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, ESSID TEXT, INET6_ADDRESS TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
 print("collecting data for table {}".format(table_name))
@@ -52,9 +52,11 @@ wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplic
 #print(wpa_pass)
 
 # connect to wireless access point
+print("Testing authentication time...")
 tic = time.perf_counter()
 wpa_supplicant = subprocess.Popen("sudo wpa_supplicant -c utils/temp/wpa_supplicant.conf -i {}".format(wireless_interface), shell=True, stdout=subprocess.PIPE)
 auth_timeout = 30
+auth_time = -1
 for line in iter(wpa_supplicant.stdout.readline, ''):
     line = line.decode('utf-8')
     print(line)
@@ -73,6 +75,30 @@ for line in iter(wpa_supplicant.stdout.readline, ''):
         auth_time = -1
         break
 
+# check for inet6 IP address
+inet6_addr = ""
+if auth_time != -1:
+    output = subprocess.run("ifconfig", shell=True, stdout=subprocess.PIPE).stdout.decode("utf-8")
+    # split by empty line
+    output = output.split("\n\n")
+    line = None
+    for interface in output:
+        if interface.find(wireless_interface) != -1:
+            line = interface
+            break
+    if line.find("inet6") != -1:
+        # find IP address
+        line = line.split("\n")
+        for group in line:
+            if group.find("inet6") != -1:
+                line = group
+                break
+        line = line.split()
+        print("inet6 IP obtained:", line[1])
+        inet6_addr = line[1]
+    else:
+        print("No IP found")
+
 wpa_supplicant.kill()
 
 # start DHClient
@@ -88,7 +114,7 @@ os.remove("utils/temp/wpa_supplicant.conf")
 
 # parse the output into desired variables
 # store to table:   # quotes were added to some strings to comply with SQL syntax
-c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}")'''.format(table_name, str(auth_time), str(essid), str(datetime.datetime.now())))
+c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}")'''.format(table_name, str(auth_time), str(essid), str(inet6_addr), str(datetime.datetime.now())))
 
 #commit the changes to db			
 conn.commit()

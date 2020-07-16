@@ -161,7 +161,7 @@ if auth_time != -1:
             break
     entry = entry.split("=")
     bit_rate = entry[1]
-    print(bit_rate)
+    #print(bit_rate)
 
     # check tx power
     entry = ""
@@ -175,7 +175,7 @@ if auth_time != -1:
 
 wpa_supplicant.kill()
 
-# start DHClient
+# start DHClient to check IPv4 address
 # sudo dhclient wlan0
 
 # bring wireless interface down and up again "reset it"

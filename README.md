@@ -12,6 +12,10 @@
 - wpasupplicant
 - speedtest-cli
 - iperf
+- python3-pip
+
+"pip3 packages"
+- getmac
 
 "development notes"
 - After completing software, make SD card a readonly filesystem for stability. Use usb drive for storing logs

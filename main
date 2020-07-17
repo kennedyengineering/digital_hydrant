@@ -25,4 +25,10 @@ fi
 #./utils/wifi_quality.py
 #./utils/netdiscover.py
 #./utils/lldp.py
-./utils/wifi_auth.py "Outside Open" "cylonbase4starswar"
+#./utils/wifi_auth.py "Outside Open" "cylonbase4starswar"
+./utils/speedtest.py
+
+# test web API
+#python3 ../post_database.py
+#rm /media/USBDrive/hydrant.db
+#./main

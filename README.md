@@ -13,6 +13,7 @@
 - speedtest-cli
 - iperf
 - python3-pip
+- dhcpcd5
 
 "pip3 packages"
 - getmac

@@ -37,3 +37,6 @@
 - testing the Raspberry Pi 4 with iperf shows that it has a 62.5 Mbit/sec wireless bandwidth when connected to a 5GHZ network
 - speedtest-cli is a command for measuring internet upload and download speeds, use "speedtest-cli" to see results
 - created a collector template file in the utility directory, can be copied and pasted and modified to create new utilities easier
+- "main" does not need to be run as sudo, but the user executing it needs to have passwordless sudo enabled
+- created a bootstrap directory for setting up the project upon installation, for a more up to date versioon of dependencies view the requirements files, will stop tracking in the README.md
+- /media/USBdrive is created when "create" option of setup_usb is run, so the setup_usb script must be run upon a new installation

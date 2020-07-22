@@ -1,5 +1,5 @@
 #!/bin/bash
-source config
+source config/bash_config
 
 # find and mount hard drive, assumes that it has been configured with setup_usb/create
 if lsblk | grep -q "$drive_name";
@@ -30,7 +30,7 @@ fi
 #./utils/speedtest.py
 #./utils/dhcp.py
 
-./scheduler.py &
+./scheduler.py
 
 # test web API -- cheap and dirty method, use "ps -a | grep -c main" to see how many times main has looped
 #./post_database.py

@@ -1,5 +1,5 @@
 #!/bin/bash
-source config
+source config/bash_config
 
 interface_name=$(iwconfig 2>&1 | grep -v "no wireless extensions" | grep -oP "^\w+")	# finds names of wireless interfaces, if there are multiple interfaces the variable will act as an array
 

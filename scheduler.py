@@ -5,10 +5,18 @@ import os
 from os import listdir
 from os.path import isfile, join
 import yaml
+import time
+import signal
 
 # hydrant main program script, schedule and execute utilities according to configuration
 # does not handle uploading to API
 # run in the background
+
+def signal_handler(signal, frame):
+    global interrupted
+    interrupted = True
+signal.signal(signal.SIGINT, signal_handler)
+interrupted = False
 
 class Utility:
     # basic data type for holding information about the utility via parsing its config file
@@ -39,9 +47,21 @@ class Utility:
         
 
 class Scheduler:
+    # Scheduler handles running utils according to their configurations
     def __init__(self, util_list):
-        pass
+        self.util_list = util_list
+        self.queue = util_list
 
+    def execute_queue(self):
+        # execute the next utility in the queue, then remove it from the queue
+        if len(self.queue) != 0:
+            util = self.queue[0]
+            if util.enabled:
+                util.execute()
+                exec_time = max(0, util.exec_time)
+                log("waiting exec_time "+str(exec_time))
+                time.sleep(exec_time)
+            self.queue.remove(util)
 
 log("starting Digital Hydrant")
 
@@ -64,4 +84,9 @@ for i in utility_config_dict:
     f = utility_config_dict[i]
     utility_list.append(Utility(i, f))
 
-print(utility_list)
+scheduler = Scheduler(utility_list)
+while 1:
+    scheduler.execute_queue()
+    if interrupted:
+        log("main loop interrupted, exiting...", error=True)
+        break

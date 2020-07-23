@@ -14,14 +14,12 @@ import sys
 from modules.log import log
 
 # check parameters, use for essid and passwd variable definitions   # 3 because the first is the file name -- wifi_auth.py
-if len(sys.argv) != 2:
-    log("timeout left undefined, exiting...", error=True)
+if len(sys.argv) != 4:
+    log("3 parameters expected, exiting...", error=True)
     exit()
 timeout = sys.argv[1]
-
-# load from config file
-essid = "Outside Open"
-passwd = "cylonbase4starswar"
+essid = sys.argv[2]
+passwd = sys.argv[3]
 #print(essid, passwd)
 
 table_name = "wifi_auth"

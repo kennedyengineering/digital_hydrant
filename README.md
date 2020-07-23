@@ -40,3 +40,7 @@
 - "main" does not need to be run as sudo, but the user executing it needs to have passwordless sudo enabled
 - created a bootstrap directory for setting up the project upon installation, for a more up to date versioon of dependencies view the requirements files, will stop tracking in the README.md
 - /media/USBdrive is created when "create" option of setup_usb is run, so the setup_usb script must be run upon a new installation
+- utils/config contains the config file for the corresponding collector, the names must match for scheduler.py to pick them up and use them. The config files all contain information about scheduling and execution duration (timeout setting in seconds), can contain additional information for use in the collector
+- scheduler.py is the "launcher" for the collectors, it creates a queue and then executes them
+- config/wireless_network_credentials.yml contains wireless network information for authentication collectors
+- created utils/modules to store helper functions and limit code repitition

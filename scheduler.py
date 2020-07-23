@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import datetime
+from utils.modules.log import log
 import os
 from os import listdir
 from os.path import isfile, join
@@ -10,7 +10,40 @@ import yaml
 # does not handle uploading to API
 # run in the background
 
-print("[INFO] Starting Digital Hydrant", datetime.datetime.now())
+class Utility:
+    # basic data type for holding information about the utility via parsing its config file
+    def __init__(self, util_path, config_path):
+        self.util_path = util_path
+    
+        self.enabled = False
+        self.exec_time = None
+        self.exec_duration = None
+
+        self.load_yaml(config_path)
+
+    # parse YAML config file
+    def load_yaml(self, config_path):
+        log("parsing "+config_path)
+        with open("utils/config/"+config_path) as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+            try:
+                self.enabled = data["enabled"]
+                self.exec_time = data["exec_time"]
+                self.exec_duration = data["exec_duration"]
+            except KeyError:
+                log("failed to parse "+config_path, error=True)
+
+    def execute(self):
+        log("executing "+self.util_path)
+        os.system("utils/"+self.util_path)
+        
+
+class Scheduler:
+    def __init__(self, util_list):
+        pass
+
+
+log("starting Digital Hydrant")
 
 # load file names
 utility_files = [f for f in listdir("utils") if isfile(join("utils", f)) and f[-3:]==".py"]
@@ -26,12 +59,9 @@ for f in utility_files:
         if f_compare == ff_compare:
             utility_config_dict[f] = ff
 
+utility_list = []
 for i in utility_config_dict:
     f = utility_config_dict[i]
-    print(f)
-    with open("utils/config/"+f) as ff:
-        data = yaml.load(ff, Loader=yaml.FullLoader)
-        print(data)
+    utility_list.append(Utility(i, f))
 
-#for utility in utility_files:
-#    os.system("utils/"+utility)
+print(utility_list)

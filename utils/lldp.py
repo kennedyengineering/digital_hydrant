@@ -10,6 +10,8 @@ import os
 import subprocess
 import datetime
 import json     # the module being parsed output JSON format, use module to make life easier
+from modules.log import log
+import sys
 
 table_name = "lldp"
 
@@ -27,14 +29,22 @@ c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name=
 # if the count is 1, then table exists
 # else, create the table    # could use CREATE TABLE IF NOT EXISTS to eliminate the need to check if the table exists
 if c.fetchone()[0]==1 :
-    print("table exists for {}, continuing".format(table_name))
+    log("table exists for {}, continuing".format(table_name))
 else:
-    print("no table exists for {}, creating".format(table_name))
+    log("no table exists for {}, creating".format(table_name))
     c.execute('''CREATE TABLE {} (SYSTEM_NAME TEXT, SYSTEM_DESCRIPTION TEXT, PORT_ID TEXT, MANAGEMENT_IP TEXT, VLAN_ID INTEGER, DATETIME TIMESTAMP)'''.format(table_name))
 
+# check passed parameters
+if len(sys.argv) != 2:
+    log("timeout left undefined, exiting...", error=True)
+    exit()
+timeout = sys.argv[1]
+
 # scrape the command line utility   # netdiscover either runs indefinetely or just a really long time, a timeout is needed, set in seconds
-print("collecting data for table {}".format(table_name))
-output = subprocess.run("lldpctl -f json", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+log("collecting data for table {}".format(table_name))
+if timeout == "-1":     output = subprocess.run("lldpctl -f json", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+else:                   output = subprocess.run("sudo timeout {} lldpctl -f json".format(timeout), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+
 #print(output)
 
 # parse the output into desired variables
@@ -66,7 +76,7 @@ try:
         c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name, '"'+str(sysname)+'"', '"'+str(sysdescr)+'"', '"'+str(portid)+'"', '"'+str(mgmtip)+'"', vlanid, '"'+str(datetime.datetime.now())+'"'))
 
 except KeyError:
-    print("no interface found")
+    log("no interface found", error=True)
 
 #commit the changes to db			
 conn.commit()

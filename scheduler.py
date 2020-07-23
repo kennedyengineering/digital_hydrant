@@ -20,6 +20,7 @@ interrupted = False
 
 class Utility:
     # basic data type for holding information about the utility via parsing its config file
+    # additional arguments and configuration can be added to config files, scheduler will only parse what it needs to run
     def __init__(self, util_path, config_path):
         self.util_path = util_path
     
@@ -43,7 +44,7 @@ class Utility:
 
     def execute(self):
         log("executing "+self.util_path)
-        os.system("utils/"+self.util_path)
+        os.system("utils/"+self.util_path+" "+str(self.exec_duration))
         
 
 class Scheduler:
@@ -58,7 +59,7 @@ class Scheduler:
             util = self.queue[0]
             if util.enabled:
                 util.execute()
-                exec_time = max(0, util.exec_time)
+                exec_time = max(0, util.exec_time)          # make sure time is not negative, if it is it will be 0
                 log("waiting exec_time "+str(exec_time))
                 time.sleep(exec_time)
             self.queue.remove(util)

@@ -11,13 +11,17 @@ import subprocess
 import datetime
 import time
 import sys
+from modules.log import log
 
 # check parameters, use for essid and passwd variable definitions   # 3 because the first is the file name -- wifi_auth.py
-if len(sys.argv) != 3:
-    print("ESSID and PASSWD were not provided, exiting")
+if len(sys.argv) != 2:
+    log("timeout left undefined, exiting...", error=True)
     exit()
-essid = sys.argv[1]
-passwd = sys.argv[2]
+timeout = sys.argv[1]
+
+# load from config file
+essid = "Outside Open"
+passwd = "cylonbase4starswar"
 #print(essid, passwd)
 
 table_name = "wifi_auth"
@@ -33,13 +37,13 @@ c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name=
 # if the count is 1, then table exists
 # else, create the table    # could use CREATE TABLE IF NOT EXISTS to eliminate the need to check if the table exists
 if c.fetchone()[0]==1 :
-    print("table exists for {}, continuing".format(table_name))
+    log("table exists for {}, continuing".format(table_name))
 else:
-    print("no table exists for {}, creating".format(table_name))
+    log("no table exists for {}, creating".format(table_name))
     c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, ESSID TEXT, INET6_ADDRESS TEXT, AP_ADDRESS TEXT, LINK_QUALITY TEXT, SIGNAL_LEVEL TEXT, FREQUENCY TEXT, BIT_RATE TEXT, TX_POWER TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
-print("collecting data for table {}".format(table_name))
+log("collecting data for table {}".format(table_name))
 
 # find name of wireless interface:
 output = subprocess.run("iw dev | grep Interface", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
@@ -52,10 +56,10 @@ wpa_pass = subprocess.run('wpa_passphrase "{}" "{}" | tee utils/temp/wpa_supplic
 #print(wpa_pass)
 
 # connect to wireless access point
-print("Testing authentication time...")
+log("Testing authentication time...")
 tic = time.perf_counter()
 wpa_supplicant = subprocess.Popen("sudo wpa_supplicant -c utils/temp/wpa_supplicant.conf -i {}".format(wireless_interface), shell=True, stdout=subprocess.PIPE)
-auth_timeout = 30
+auth_timeout = int(timeout)
 auth_time = -1
 for line in iter(wpa_supplicant.stdout.readline, ''):
     line = line.decode('utf-8')
@@ -63,15 +67,15 @@ for line in iter(wpa_supplicant.stdout.readline, ''):
     toc = time.perf_counter()
     auth_time = toc-tic
     if line.find("CTRL-EVENT-CONNECTED") != -1:
-        print("Wireless is Connected")
-        print("Authentication time: {} seconds".format(auth_time))
+        log("Wireless is Connected")
+        log("Authentication time: {} seconds".format(auth_time))
         break
     elif auth_time > auth_timeout:
-        print("Authentication timeout reached, exiting...")
+        log("Authentication timeout reached, exiting...", error=True)
         auth_time = -1
         break
     elif line.find("CTRL-EVENT-DISCONNECTED") != -1:
-        print("Authentication failed, exiting...")
+        log("Authentication failed, exiting...", error=True)
         auth_time = -1
         break
 
@@ -94,10 +98,10 @@ if auth_time != -1:
                 line = group
                 break
         line = line.split()
-        print("inet6 IP obtained:", line[1])
+        log("inet6 IP obtained: "+str(line[1]))
         inet6_addr = line[1]
     else:
-        print("No IP found")
+        log("No IP found", error=True)
 
 # check AP address, check link quality, check signal level, check frequency, check bit rate, check tx power
 AP_address = ""
@@ -184,7 +188,7 @@ while loaded == False:
 
             loaded = True
     except IndexError:
-        print("Error scraping iwconfig, retrying...")
+        log("Error scraping iwconfig, retrying...", error=True)
         loaded = False
 
 wpa_supplicant.kill()

@@ -9,12 +9,20 @@ import sqlite3
 import os
 import subprocess
 import datetime
+import sys
+from modules.log import log
 
 table_name = "wifi_quality"
 
 # load variables from config file
 db_name = os.environ["db_name"]
 drive_path = os.environ["drive_path"]
+
+# check passed parameters
+if len(sys.argv) != 2:
+    log("timeout left undefined, exiting...", error=True)
+    exit()
+timeout = sys.argv[1]
 
 conn = sqlite3.connect(str(drive_path) + "/" + str(db_name))
 c = conn.cursor()
@@ -25,14 +33,16 @@ c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name=
 # if the count is 1, then table exists
 # else, create the table    # could use CREATE TABLE IF NOT EXISTS to eliminate the need to check if the table exists
 if c.fetchone()[0]==1 :
-    print("table exists for {}, continuing".format(table_name))
+    log("table exists for {}, continuing".format(table_name))
 else:
-    print("no table exists for {}, creating".format(table_name))
+    log("no table exists for {}, creating".format(table_name))
     c.execute('''CREATE TABLE {} (ADDRESS TEXT, ENCRYPTION TEXT, QUALITY TEXT, LAST_BEACON TEXT, ESSID TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
-print("collecting data for table {}".format(table_name))
-output = subprocess.run("sudo iwlist wlan0 scanning | egrep 'Cell |Encryption|Quality|Last beacon|ESSID' | tr -d '\n'", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+log("collecting data for table {}".format(table_name))
+if timeout == "-1":     output = subprocess.run("sudo iwlist wlan0 scanning | egrep 'Cell |Encryption|Quality|Last beacon|ESSID' | tr -d '\n'", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+else:                   output = subprocess.run("sudo timeout {} sudo iwlist wlan0 scanning | egrep 'Cell |Encryption|Quality|Last beacon|ESSID' | tr -d '\n'".format(timeout), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+
 #print(output)
 
 # parse the output into desired variables

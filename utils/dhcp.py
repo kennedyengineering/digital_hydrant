@@ -12,6 +12,7 @@ import subprocess
 import datetime
 import sys
 from modules.log import log
+from modules.upload import upload
 
 # load variables from config file
 db_name = os.environ["db_name"]
@@ -38,9 +39,13 @@ else:               output = subprocess.run("sudo timeout {} dhcpcd -T".format(t
 # parse the output into desired variables
 
 # store to table:   # quotes were added to some strings to comply with SQL syntax
-c.execute('''INSERT INTO {} VALUES("{}", "{}")'''.format(table_name, output, str(datetime.datetime.now())))
+date = str(datetime.datetime.now())
+c.execute('''INSERT INTO {} VALUES("{}", "{}")'''.format(table_name, output, date))
 
 #commit the changes to the database
 conn.commit()
 #close the connection
 conn.close()
+
+# mark the data entry for uploading
+upload(table_name, date)

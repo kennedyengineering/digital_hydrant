@@ -1,4 +1,8 @@
 #!/bin/bash
+
+trap "exit" INT TERM ERR
+trap "kill 0" EXIT
+
 source config/bash_config
 
 # find and mount hard drive, assumes that it has been configured with setup_usb/create
@@ -30,6 +34,7 @@ fi
 #./utils/speedtest.py
 #./utils/dhcp.py
 
+./post_database.py &
 ./scheduler.py
 
 # test web API -- cheap and dirty method, use "ps -a | grep -c main" to see how many times main has looped

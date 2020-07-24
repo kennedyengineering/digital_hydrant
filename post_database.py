@@ -6,43 +6,52 @@ import re
 import os
 import time
 from getmac import get_mac_address
+import socket
+from utils.modules.log import log
+import threading
+import signal
 
-# hydrant script to publish all database tables to the web API
-# time intensive, just for testing purposes
-# will be adapted into a system enabling dynamic updates to the API
+def signal_handler(signal, frame):
+    global interrupted
+    interrupted = True
+signal.signal(signal.SIGINT, signal_handler)
+interrupted = False
 
-print("Dumping database to web API")
-
-def dict_factory(cursor, row):
-    d = {}
-    for idx, col in enumerate(cursor.description):
-        d[col[0]] = row[idx]
-    return d
+# hydrant script to publish database tables to the web API
 
 connection = sqlite3.connect("/media/USBDrive/hydrant.db")
-connection.row_factory = dict_factory
-
 cursor = connection.cursor()
+mac_addr = get_mac_address()
+log("Starting database API client")
 
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-tables = cursor.fetchall()
-for name in tables:
-    table = name["name"]
-    
-    cursor.execute("select * from {}".format(table))
-    results = cursor.fetchall()
+HOST = os.environ["api_client_host"]
+PORT = int(os.environ["api_client_port"])
 
-    mac_addr = get_mac_address()
+queue = []
+def queue_server():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind((HOST, PORT))
+        while True:
+            s.listen()
+            conn, addr = s.accept()
+            with conn:
+                while True:
+                    data = conn.recv(1024)
+                    if not data:
+                        break
+                    queue.append(data.decode("utf-8"))
 
-    for entry in results:
-        result = str(entry)
-        result = re.sub("'", '\\"', result)
-        timestamp = time.time()
-        cmd = '''curl -d '{"timestamp": {timestamp}, "type":"{table}", "source":"{mac_addr}", "payload":"%s"}' -H "Content-Type: application/json" -X POST https://digital-hydrant.herokuapp.com/v1 > /dev/null'''
-        cmd = cmd.replace("{timestamp}", str(timestamp))
-        cmd = cmd.replace("{table}", str(table))
-        cmd = cmd.replace("{mac_addr}", str(mac_addr))
-        cmd = cmd % result
-        os.system(cmd)
+queue_thread = threading.Thread(target=queue_server, daemon=True)
+queue_thread.start()
+
+# main thread
+while True:
+    if len(queue) > 0:
+        print(queue)
+        del queue[0]
+
+    if interrupted:
+        log("Stopping database API client", error=True)
+        break
 
 connection.close()

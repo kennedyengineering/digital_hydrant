@@ -5,6 +5,7 @@
 # command utility to scrape: None -- using timers
 # gather information: auth_time, essid, inet6_address, AP address, link_quality, signal_level, frequency, bit_rate, Tx-Power
 
+################IMPORT STATEMENTS#################
 import sqlite3
 import os
 import subprocess
@@ -13,6 +14,12 @@ import time
 import sys
 from modules.log import log
 
+# load variables from config file
+db_name = os.environ["db_name"]
+drive_path = os.environ["drive_path"]
+# connect to the SQLite3 database
+conn = sqlite3.connect(str(drive_path) + "/" + str(db_name))
+c = conn.cursor()
 # check parameters, use for essid and passwd variable definitions   # 3 because the first is the file name -- wifi_auth.py
 if len(sys.argv) != 4:
     log("3 parameters expected, exiting...", error=True)
@@ -21,24 +28,11 @@ timeout = sys.argv[1]
 essid = sys.argv[2]
 passwd = sys.argv[3]
 #print(essid, passwd)
+##################################################
 
+# create table if it does not exist
 table_name = "wifi_auth"
-
-# load variables from config file
-db_name = os.environ["db_name"]
-drive_path = os.environ["drive_path"]
-# connect to the SQLite3 database
-conn = sqlite3.connect(str(drive_path) + "/" + str(db_name))
-c = conn.cursor()
-# verify that the table exists, get a count
-c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{}' '''.format(table_name))
-# if the count is 1, then table exists
-# else, create the table    # could use CREATE TABLE IF NOT EXISTS to eliminate the need to check if the table exists
-if c.fetchone()[0]==1 :
-    log("table exists for {}, continuing".format(table_name))
-else:
-    log("no table exists for {}, creating".format(table_name))
-    c.execute('''CREATE TABLE {} (AUTH_TIME TEXT, ESSID TEXT, INET6_ADDRESS TEXT, AP_ADDRESS TEXT, LINK_QUALITY TEXT, SIGNAL_LEVEL TEXT, FREQUENCY TEXT, BIT_RATE TEXT, TX_POWER TEXT, DATETIME TIMESTAMP)'''.format(table_name))
+c.execute('''CREATE TABLE IF NOT EXISTS {} (AUTH_TIME TEXT, ESSID TEXT, INET6_ADDRESS TEXT, AP_ADDRESS TEXT, LINK_QUALITY TEXT, SIGNAL_LEVEL TEXT, FREQUENCY TEXT, BIT_RATE TEXT, TX_POWER TEXT, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility
 log("collecting data for table {}".format(table_name))
@@ -120,6 +114,7 @@ while loaded == False:
                 if interface.find(wireless_interface) != -1:
                     line = interface
                     break
+
             # process data
             line = line.split("  ")
             #print(line)
@@ -209,4 +204,3 @@ c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}
 conn.commit()
 #close the connection
 conn.close()
-

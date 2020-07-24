@@ -35,7 +35,6 @@ log("collecting data for table {}".format(table_name))
 if timeout == "-1":     output = subprocess.run("speedtest-cli --simple", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 else:                   output = subprocess.run("sudo timeout {} speedtest-cli --simple".format(timeout), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 
-
 # parse the output into desired variables
 output = output.split("\n")
 ping = ''
@@ -54,9 +53,7 @@ for entry in output:
         upload = entry
         upload = upload.split(": ")
         upload = upload[1]
-
 #print(ping, download, upload)
-
 
 # store to table:   # quotes were added to some strings to comply with SQL syntax
 c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}")'''.format(table_name, str(ping), str(download), str(upload), str(datetime.datetime.now())))
@@ -65,4 +62,3 @@ c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}")'''.format(table_name,
 conn.commit()
 #close the connection
 conn.close()
-

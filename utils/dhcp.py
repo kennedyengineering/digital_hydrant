@@ -44,4 +44,3 @@ c.execute('''INSERT INTO {} VALUES("{}", "{}")'''.format(table_name, output, str
 conn.commit()
 #close the connection
 conn.close()
-

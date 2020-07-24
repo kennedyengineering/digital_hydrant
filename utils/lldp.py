@@ -5,6 +5,7 @@
 # command utility to scrape: lldpctl (-f json?)
 # gather information: SysName, SysDescr, PortID, MgmtIP, vlan-id
 
+################IMPORT STATEMENTS#################
 import sqlite3
 import os
 import subprocess
@@ -13,39 +14,27 @@ import json     # the module being parsed output JSON format, use module to make
 from modules.log import log
 import sys
 
-table_name = "lldp"
-
 # load variables from config file
 db_name = os.environ["db_name"]
 drive_path = os.environ["drive_path"]
-
 # connect to the SQLite3 database
 conn = sqlite3.connect(str(drive_path) + "/" + str(db_name))
 c = conn.cursor()
-
-# verify that the table exists, get a count
-c.execute(''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{}' '''.format(table_name))
-
-# if the count is 1, then table exists
-# else, create the table    # could use CREATE TABLE IF NOT EXISTS to eliminate the need to check if the table exists
-if c.fetchone()[0]==1 :
-    log("table exists for {}, continuing".format(table_name))
-else:
-    log("no table exists for {}, creating".format(table_name))
-    c.execute('''CREATE TABLE {} (SYSTEM_NAME TEXT, SYSTEM_DESCRIPTION TEXT, PORT_ID TEXT, MANAGEMENT_IP TEXT, VLAN_ID INTEGER, DATETIME TIMESTAMP)'''.format(table_name))
-
 # check passed parameters
 if len(sys.argv) != 2:
     log("timeout left undefined, exiting...", error=True)
     exit()
 timeout = sys.argv[1]
+##################################################
+
+# create table if it does not exist
+table_name = "lldp"
+c.execute('''CREATE TABLE IF NOT EXISTS {} (SYSTEM_NAME TEXT, SYSTEM_DESCRIPTION TEXT, PORT_ID TEXT, MANAGEMENT_IP TEXT, VLAN_ID INTEGER, DATETIME TIMESTAMP)'''.format(table_name))
 
 # scrape the command line utility   # netdiscover either runs indefinetely or just a really long time, a timeout is needed, set in seconds
 log("collecting data for table {}".format(table_name))
 if timeout == "-1":     output = subprocess.run("lldpctl -f json", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 else:                   output = subprocess.run("sudo timeout {} lldpctl -f json".format(timeout), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
-
-#print(output)
 
 # parse the output into desired variables
 output = json.loads(output)
@@ -82,4 +71,3 @@ except KeyError:
 conn.commit()
 #close the connection
 conn.close()
-

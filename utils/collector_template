@@ -12,6 +12,7 @@ import subprocess
 import datetime
 import sys
 from modules.log import log
+from modules.upload import upload
 
 # load variables from config file
 db_name = os.environ["db_name"]
@@ -41,7 +42,10 @@ Y= len(output)
 Z = output + output
 
 # store to table:   # quotes were added to some strings to comply with SQL syntax
-c.execute('''INSERT INTO {} VALUES({}, {}, {}, "{}")'''.format(table_name, '"'+X+'"', Y, '"'+Z+'"', str(datetime.datetime.now())))
+date = str(datetime.datetime.now())
+c.execute('''INSERT INTO {} VALUES({}, {}, {}, "{}")'''.format(table_name, '"'+X+'"', Y, '"'+Z+'"', date))
+# mark the data entry for uploading
+upload(table_name, date)
 
 #commit the changes to the database
 conn.commit()

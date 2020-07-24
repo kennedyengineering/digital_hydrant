@@ -12,6 +12,7 @@ import subprocess
 import datetime
 import sys
 from modules.log import log
+from modules.upload import upload as up
 
 # load variables from config file
 db_name = os.environ["db_name"]
@@ -56,7 +57,9 @@ for entry in output:
 #print(ping, download, upload)
 
 # store to table:   # quotes were added to some strings to comply with SQL syntax
-c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}")'''.format(table_name, str(ping), str(download), str(upload), str(datetime.datetime.now())))
+date = str(datetime.datetime.now())
+c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}")'''.format(table_name, str(ping), str(download), str(upload), date))
+up(table_name, date)
 
 #commit the changes to the database
 conn.commit()

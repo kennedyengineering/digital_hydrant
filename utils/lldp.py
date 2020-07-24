@@ -13,6 +13,7 @@ import datetime
 import json     # the module being parsed output JSON format, use module to make life easier
 from modules.log import log
 import sys
+from modules.upload import upload
 
 # load variables from config file
 db_name = os.environ["db_name"]
@@ -62,7 +63,9 @@ try:
         #print(vlanid, type(vlanid))
 
         # store to table:   # quotes were added to some strings to comply with SQL syntax
-        c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name, '"'+str(sysname)+'"', '"'+str(sysdescr)+'"', '"'+str(portid)+'"', '"'+str(mgmtip)+'"', vlanid, '"'+str(datetime.datetime.now())+'"'))
+        date = str(datetime.datetime.now())
+        c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name, '"'+str(sysname)+'"', '"'+str(sysdescr)+'"', '"'+str(portid)+'"', '"'+str(mgmtip)+'"', vlanid, '"'+str(date)+'"'))
+        upload(table_name, date)
 
 except KeyError:
     log("no interface found", error=True)

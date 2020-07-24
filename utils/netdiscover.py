@@ -12,6 +12,7 @@ import subprocess
 import datetime
 from modules.log import log
 import sys
+from modules.upload import upload
 
 # load variables from config file
 db_name = os.environ["db_name"]
@@ -67,7 +68,9 @@ for i in simplified_output:
 
 
     # store to table:   # quotes were added to some strings to comply with SQL syntax
-    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {})'''.format(table_name, '"'+str(ip)+'"', '"'+str(mac_address)+'"', '"'+str(name)+'"', '"'+str(datetime.datetime.now())+'"'))
+    date = str(datetime.datetime.now())
+    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {})'''.format(table_name, '"'+str(ip)+'"', '"'+str(mac_address)+'"', '"'+str(name)+'"', '"'+date+'"'))
+    upload(table_name, date)
 
 #commit the changes to db			
 conn.commit()

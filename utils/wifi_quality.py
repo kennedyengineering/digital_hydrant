@@ -12,6 +12,7 @@ import subprocess
 import datetime
 import sys
 from modules.log import log
+from modules.upload import upload
 
 # load variables from config file
 db_name = os.environ["db_name"]
@@ -98,7 +99,9 @@ for i in res:
     #print(essid)
 
     # store to table:   # quotes were added to some strings to comply with SQL syntax
-    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name,'"'+str(address)+'"', '"'+str(encryption)+'"', '"'+str(quality)+'"', '"'+str(last_beacon)+'"', str(essid), '"'+str(datetime.datetime.now())+'"'))
+    date = str(datetime.datetime.now())
+    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name,'"'+str(address)+'"', '"'+str(encryption)+'"', '"'+str(quality)+'"', '"'+str(last_beacon)+'"', str(essid), '"'+date+'"'))
+    upload(table_name, date)
 
 #commit the changes to db
 conn.commit()

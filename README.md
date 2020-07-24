@@ -44,3 +44,4 @@
 - scheduler.py is the "launcher" for the collectors, it creates a queue and then executes them
 - config/wireless_network_credentials.yml contains wireless network information for authentication collectors
 - created utils/modules to store helper functions and limit code repitition
+- data is sent to the web API via the post_database.py daemon. It runs in the background and is entirely self contained in main. It acts as a server, whose hostname and port are configurable in "config/bash_config". That configuration data is also used in the module upload.py, which acts as a client and sends data to post_database.py. It sends the table name and date as identifiers and post_database.py adds it to a queue to be uploaded. the "upload" method should be called whenever there is an insertion operation on the database. The thing to be warned of is the date passed through the method should be the same as listed in the database entry

@@ -26,18 +26,5 @@ then
 	./setup_wireless
 fi
 
-# main loop, iterate through each script in utils directory
-#./utils/wifi_quality.py
-#./utils/netdiscover.py
-#./utils/lldp.py
-#./utils/wifi_auth.py "Outside Open" "cylonbase4starswar"
-#./utils/speedtest.py
-#./utils/dhcp.py
-
 ./post_database.py &
 ./scheduler.py
-
-# test web API -- cheap and dirty method, use "ps -a | grep -c main" to see how many times main has looped
-#./post_database.py
-#rm /media/USBDrive/hydrant.db
-#./main

@@ -6,6 +6,6 @@
 # true/false boolean, toggle whether to run utility or not
 enabled: true
 # 0 == run immediately, specify execution interval in seconds
-exec_time: 10
+exec_time: 0
 # -1 == run indefinitely, not required for most collectors
-exec_duration: -1
+exec_duration: 30

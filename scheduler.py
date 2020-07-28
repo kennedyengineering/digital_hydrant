@@ -58,10 +58,10 @@ class Scheduler:
         if len(self.queue) != 0:
             util = self.queue[0]
             if util.enabled:
-                util.execute()
                 exec_time = max(0, util.exec_time)          # make sure time is not negative, if it is it will be 0
                 log("waiting exec_time "+str(exec_time))
                 time.sleep(exec_time)
+                util.execute()
             self.queue.remove(util)
 
 log("starting Digital Hydrant")

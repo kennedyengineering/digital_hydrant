@@ -59,6 +59,7 @@ for entry in output:
 # store to table:   # quotes were added to some strings to comply with SQL syntax
 date = str(datetime.datetime.now())
 c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}")'''.format(table_name, str(ping), str(download), str(upload), date))
+conn.commit()
 up(table_name, date)
 
 #commit the changes to the database

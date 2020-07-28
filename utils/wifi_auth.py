@@ -201,6 +201,7 @@ os.remove("utils/temp/wpa_supplicant.conf")
 # store to table:   # quotes were added to some strings to comply with SQL syntax
 date = str(datetime.datetime.now())
 c.execute('''INSERT INTO {} VALUES("{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}", "{}")'''.format(table_name, str(auth_time), str(essid), str(inet6_addr), str(AP_address), str(link_quality), str(signal_level), str(frequency), str(bit_rate), str(tx_power), date))
+conn.commit()
 upload(table_name, date)
 
 #commit the changes to db			

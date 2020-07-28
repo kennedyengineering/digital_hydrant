@@ -65,6 +65,7 @@ try:
         # store to table:   # quotes were added to some strings to comply with SQL syntax
         date = str(datetime.datetime.now())
         c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name, '"'+str(sysname)+'"', '"'+str(sysdescr)+'"', '"'+str(portid)+'"', '"'+str(mgmtip)+'"', vlanid, '"'+str(date)+'"'))
+        conn.commit()
         upload(table_name, date)
 
 except KeyError:

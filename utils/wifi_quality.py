@@ -101,6 +101,7 @@ for i in res:
     # store to table:   # quotes were added to some strings to comply with SQL syntax
     date = str(datetime.datetime.now())
     c.execute('''INSERT INTO {} VALUES({}, {}, {}, {}, {}, {})'''.format(table_name,'"'+str(address)+'"', '"'+str(encryption)+'"', '"'+str(quality)+'"', '"'+str(last_beacon)+'"', str(essid), '"'+date+'"'))
+    conn.commit()
     upload(table_name, date)
 
 #commit the changes to db

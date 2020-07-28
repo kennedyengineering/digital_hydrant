@@ -70,6 +70,7 @@ for i in simplified_output:
     # store to table:   # quotes were added to some strings to comply with SQL syntax
     date = str(datetime.datetime.now())
     c.execute('''INSERT INTO {} VALUES({}, {}, {}, {})'''.format(table_name, '"'+str(ip)+'"', '"'+str(mac_address)+'"', '"'+str(name)+'"', '"'+date+'"'))
+    conn.commit()
     upload(table_name, date)
 
 #commit the changes to db			

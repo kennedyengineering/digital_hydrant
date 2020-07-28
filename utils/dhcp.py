@@ -41,6 +41,7 @@ else:               output = subprocess.run("sudo timeout {} dhcpcd -T".format(t
 # store to table:   # quotes were added to some strings to comply with SQL syntax
 date = str(datetime.datetime.now())
 c.execute('''INSERT INTO {} VALUES("{}", "{}")'''.format(table_name, output, date))
+conn.commit()
 upload(table_name, date)
 
 #commit the changes to the database

@@ -1,0 +1,3 @@
+put log.py and upload.py into the collector class
+modify scheduler to work with the new layout and access the class instead of the YAML config. Remove the utility class from scheduler, add funtionality to collector class (collector.py)
+investigate moving the upload daemon to a thread inside the collector object

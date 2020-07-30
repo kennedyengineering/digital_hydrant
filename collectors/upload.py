@@ -14,4 +14,3 @@ def upload(table_name, datetime):
         s.connect((HOST, PORT))
         payload = str(table_name) + ", " + str(datetime)
         s.sendall(bytes(payload, "utf-8"))
-

@@ -1,9 +1,13 @@
-import config.global_config
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import config.global_config as gc
+
 import sqlite3
 import socket
 import subprocess
 import datetime
 import yaml
+import logging
 
 # Collector object class definition
 # contains all the base functions needed for interfacing with the Digital Hydrant system
@@ -12,61 +16,121 @@ import yaml
 # will handle loading configuration data from the collector's "config.yml"
 # will handle logging information, printing colored output, and saving to file
 
+
 class Collector:
     def __init__(self, name):
         # create all variables
         self.name = str(name)
 
-        # for "self.execute"
-        self.exec_time = None
-        # for ??scheduler.py?? or have it load itself?
+        # create logger
+        # self.logger = XXX
+
+        # for "self.execute", variables loaded from "config.yml"
         self.exec_duration = None
-        self.enabled = False
+        self.enabled = None
+        self.exec_time = None
+        self.misc_config = {}
+
+        # load YAML config file
+        self.load_yaml()
 
         # try to establish connection to database
         # will throw error if USB drive is disconnected, do not proceed if there is not drive
         try:
-            self.db_connection = sqlite3.connect(drive_path + "/" + db_name)
-            self.cursor = self.connection.cursor()
-        except:
+            self.db_connection = sqlite3.connect(gc.drive_path + "/" + gc.db_name)
+            self.cursor = self.db_connection.cursor()
+        except Exception as err:
             # logging.critical note cannot establish connection to database
+            print(err)
             exit()
 
-        # if wireless is enabled, make sure it is working before proceeding
-        if wireless_is_enabled:
-            # run checks
-            pass
+        # # if wireless is enabled, make sure it is working before proceeding
+        # if wireless_is_enabled:
+        #     # run checks
+        #     pass
 
     def load_yaml(self):
+        # log, loading yaml...
         # load "config.yml"
         # in directory with name matching "self.name"
         # load timeout
         # load other misc arguments into a dict
-        pass
+
+        config_path = os.path.dirname(os.path.abspath(__file__))+"/{}/config.yml".format(self.name)
+        # os check if file exists
+        if not os.path.exists(config_path):
+            print("{} not found".format(config_path))
+            return
+        print("parsing "+config_path)
+        with open(config_path) as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+            try:
+                self.exec_duration = data.pop("exec_duration", None)
+                self.exec_time = data.pop("exec_time", None)
+                self.enabled = data.pop("enabled", None)
+                self.misc_config = data
+            except KeyError:
+                print("failed to parse " + config_path)
 
     def execute(self, cmd):
+        # log, executing...
         # takes command as a string
         # load timeout from YAML, append to command
         # execute using subprocess
         # return captured output
-        pass
 
-    def publish(self, args):
+        command = str(cmd)
+
+        if self.exec_duration != -1:
+            command = "sudo timeout {} ".format(self.exec_duration) + command
+
+        print(command)
+
+        output = subprocess.run(command, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+
+        return output
+
+    def publish(self, dict):
+        print(dict)
+        print("publishing to", self.name)
+        # log, publishing to...
         # create table [if not exists] using type detection of passed arguments/variables
+        # column name is dict key, and value is the key's value
         # insert into table
         # connection commit
         # self.upload
+
+        date = str(datetime.datetime.now())
+
+        keys, values = zip(*dict.items())
+
+        table_columns = ''''''
+        table_values = ''''''
+        for key in keys:
+            table_columns = table_columns + str(key) + " TEXT, "
+            table_values = table_values + '"' + str(dict[key]) + '", '
+        table_columns = table_columns + "DATETIME TIMESTAMP"
+        table_values = table_values + '"' + date + '"'
+        table_creation_cmd = "CREATE TABLE IF NOT EXISTS {} ({})".format(self.name, table_columns)
+        table_insertion_cmd = "INSERT INTO {} VALUES({})".format(self.name, table_values)
+        # print(table_creation_cmd)
+        # print(table_insertion_cmd)
+        self.cursor.execute(table_creation_cmd)
+        self.cursor.execute(table_insertion_cmd)
+        self.db_connection.commit()
+        self.__upload__(date)
+
+    def __upload__(self, date):
+        print(date)
+        # # connect to queue server, notify daemon that entry is ready to be uploaded
+        #
+        # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        #     s.connect((gc.api_client_host, gc.api_client_port))
+        #     payload = str(self.name) + ", " + str(date)
+        #     s.sendall(bytes(payload, "utf-8"))
+        #
         pass
 
-    def __upload__(self, table_name, datetime):
-        # connect to queue server, notify daemon that entry is ready to be uploaded
-
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((api_client_host, api_client_port))
-            payload = str(self.name) + ", " + str(datetime)
-            s.sendall(bytes(payload, "utf-8"))
-
-    def __del__(self):
+    def close(self):
         self.db_connection.commit()
         self.db_connection.close()
-

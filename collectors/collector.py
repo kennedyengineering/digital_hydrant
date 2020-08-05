@@ -22,8 +22,18 @@ class Collector:
         # create all variables
         self.name = str(name)
 
-        # create logger
-        # self.logger = XXX
+        # create logger objects and configure
+        self.logger = logging.getLogger("Digital Hydrant."+self.name)
+        self.logger.setLevel(logging.DEBUG)
+        self.fh = logging.FileHandler(gc.drive_path+"/output.log")
+        self.fh.setLevel(logging.DEBUG)
+        self.ch = logging.StreamHandler()
+        self.ch.setLevel(logging.INFO)      # could also be ERROR or higher
+        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.fh.setFormatter(self.formatter)
+        self.ch.setFormatter(self.formatter)
+        self.logger.addHandler(self.fh)
+        self.logger.addHandler(self.ch)
 
         # for "self.execute", variables loaded from "config.yml"
         self.exec_duration = None
@@ -40,28 +50,23 @@ class Collector:
             self.db_connection = sqlite3.connect(gc.drive_path + "/" + gc.db_name)
             self.cursor = self.db_connection.cursor()
         except Exception as err:
-            # logging.critical note cannot establish connection to database
-            print(err)
+            self.logger.critical("Failed to init database connection: {}".format(err))
             exit()
 
-        # # if wireless is enabled, make sure it is working before proceeding
-        # if wireless_is_enabled:
-        #     # run checks
-        #     pass
-
     def load_yaml(self):
-        # log, loading yaml...
-        # load "config.yml"
-        # in directory with name matching "self.name"
-        # load timeout
-        # load other misc arguments into a dict
+        self.logger.debug("Loading YAML config file")
 
         config_path = os.path.dirname(os.path.abspath(__file__))+"/{}/config.yml".format(self.name)
+
         # os check if file exists
         if not os.path.exists(config_path):
-            print("{} not found".format(config_path))
+            self.logger.error("Config file: {} not found".format(config_path))
             return
-        print("parsing "+config_path)
+        else:
+            self.logger.debug("Config file: {} found".format(config_path))
+
+        # parse the YAML config file
+        self.logger.debug("Parsing {}".format(config_path))
         with open(config_path) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
             try:
@@ -69,36 +74,26 @@ class Collector:
                 self.exec_time = data.pop("exec_time", None)
                 self.enabled = data.pop("enabled", None)
                 self.misc_config = data
-            except KeyError:
-                print("failed to parse " + config_path)
+            except KeyError as err:
+                self.logger.error("Failed to parse {}, with error {}".format(config_path, err))
+                return
+
+        self.logger.debug("Parsed {}".format(config_path))
 
     def execute(self, cmd):
-        # log, executing...
-        # takes command as a string
-        # load timeout from YAML, append to command
-        # execute using subprocess
-        # return captured output
 
         command = str(cmd)
 
         if self.exec_duration != -1:
             command = "sudo timeout {} ".format(self.exec_duration) + command
-
-        print(command)
+        self.logger.debug("Executing {}".format(command))
 
         output = subprocess.run(command, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 
         return output
 
     def publish(self, dict):
-        print(dict)
-        print("publishing to", self.name)
-        # log, publishing to...
-        # create table [if not exists] using type detection of passed arguments/variables
-        # column name is dict key, and value is the key's value
-        # insert into table
-        # connection commit
-        # self.upload
+        self.logger.debug("Publishing to table {}".format(self.name))
 
         date = str(datetime.datetime.now())
 
@@ -109,19 +104,18 @@ class Collector:
         for key in keys:
             table_columns = table_columns + str(key) + " TEXT, "
             table_values = table_values + '"' + str(dict[key]) + '", '
-        table_columns = table_columns + "DATETIME TIMESTAMP"
-        table_values = table_values + '"' + date + '"'
+        table_columns = table_columns + "DATETIME TIMESTAMP, UPLOADED INTEGER"
+        table_values = table_values + '"' + date + '", 0'
         table_creation_cmd = "CREATE TABLE IF NOT EXISTS {} ({})".format(self.name, table_columns)
         table_insertion_cmd = "INSERT INTO {} VALUES({})".format(self.name, table_values)
-        # print(table_creation_cmd)
-        # print(table_insertion_cmd)
         self.cursor.execute(table_creation_cmd)
         self.cursor.execute(table_insertion_cmd)
         self.db_connection.commit()
         self.__upload__(date)
 
     def __upload__(self, date):
-        print(date)
+        self.logger.debug("Uploading with datetime {}".format(date))
+
         # # connect to queue server, notify daemon that entry is ready to be uploaded
         #
         # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -129,8 +123,8 @@ class Collector:
         #     payload = str(self.name) + ", " + str(date)
         #     s.sendall(bytes(payload, "utf-8"))
         #
-        pass
 
     def close(self):
+        self.logger.debug("Closing out")
         self.db_connection.commit()
         self.db_connection.close()

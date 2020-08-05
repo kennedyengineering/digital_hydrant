@@ -21,7 +21,6 @@ output = collector.execute(command)
 # organize data into a dictionary for publishing
 parsed_output = {}
 parsed_output["DHCP_LOG"] = output
-parsed_output["TEST"] = 2
 collector.publish(parsed_output)
 
 collector.close()

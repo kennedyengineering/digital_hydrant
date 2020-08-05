@@ -11,6 +11,4 @@ add proper logging before you do though, add log file path to global_config.py
 convert to new format VV
 auth_nearest_wifi
 collector_template
-speedtest
 wifi_auth
-wifi_quality

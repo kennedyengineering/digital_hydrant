@@ -6,20 +6,42 @@ from os.path import isfile, isdir, join
 import yaml
 import time
 import signal
+import config.global_config as gc
+import logging
 
 # hydrant main program script, schedule and execute utilities according to configuration
 # does not handle uploading to API
 
+# create logger objects and configure
+logger = logging.getLogger("Digital Hydrant.scheduler")
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler(gc.drive_path + "/output.log")
+fh.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)  # could also be ERROR or higher
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+ch.setFormatter(formatter)
+logger.addHandler(fh)
+logger.addHandler(ch)
+
+
 def signal_handler(signal, frame):
     global interrupted
     interrupted = True
+
+
 signal.signal(signal.SIGINT, signal_handler)
 interrupted = False
 
+
 class Utility:
     # basic data type for holding information about the utility via parsing its config file
-    # additional arguments and configuration can be added to config files, scheduler will only parse what it needs to run
+    # additional arguments and configuration can be added to config file, scheduler will only parse what it needs to run
     def __init__(self, util_path, config_path):
+        self.logger = logging.getLogger("Digital Hydrant.scheduler.Utility")
+        self.logger.debug("New Utility instance with parameters: {}, {}".format(util_path, config_path))
+
         self.util_path = util_path
     
         self.enabled = False
@@ -30,24 +52,29 @@ class Utility:
 
     # parse YAML config file
     def load_yaml(self, config_path):
-        print("parsing "+config_path)
+        self.logger.debug("Parsing {}".format(config_path))
         with open(config_path) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
             try:
                 self.enabled = data["enabled"]
                 self.exec_time = data["exec_time"]
                 self.exec_duration = data["exec_duration"]
-            except KeyError:
-                print("failed to parse "+config_path)
+            except KeyError as err:
+                self.logger.error("Failed to parse {}, with error {}".format(config_path, err))
+                return
+
+        self.logger.debug("Parsed {}".format(config_path))
 
     def execute(self):
-        print("executing "+self.util_path)
+        self.logger.debug("Executing {}".format(self.util_path))
         os.system(self.util_path)
         
 
 class Scheduler:
     # Scheduler handles running utils according to their configurations
     def __init__(self, util_list):
+        self.logger = logging.getLogger("Digital Hydrant.scheduler.Scheduler")
+
         self.util_list = util_list
         self.queue = util_list
 
@@ -57,12 +84,14 @@ class Scheduler:
             util = self.queue[0]
             if util.enabled:
                 exec_time = max(0, util.exec_time)          # make sure time is not negative, if it is it will be 0
-                print("waiting exec_time "+str(exec_time))
+                self.logger.debug("Waiting exec_time {}, for util {}".format(str(exec_time), util.util_path))
                 time.sleep(exec_time)
+                self.logger.info("Executing {}".format(util.util_path))
                 util.execute()
             self.queue.remove(util)
 
-print("starting Digital Hydrant")
+
+logger.info("Starting Digital Hydrant")
 
 # load collector directory path names
 # directories to be not added to the collector dir list
@@ -80,5 +109,5 @@ scheduler = Scheduler(utility_list)
 while 1:
     scheduler.execute_queue()
     if interrupted:
-        print("main loop interrupted, exiting...")
+        logger.critical("Main loop interrupted, exiting")
         break

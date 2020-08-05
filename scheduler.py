@@ -95,7 +95,7 @@ logger.info("Starting Digital Hydrant")
 
 # load collector directory path names
 # directories to be not added to the collector dir list
-dir_blacklist = ['__pycache__', 'wifi_quality', 'speedtest', 'netdiscover', 'wifi_auth', 'auth_nearest_wifi', 'collector_template', 'dhcp']
+dir_blacklist = ['__pycache__', 'wifi_quality', 'speedtest', 'lldp', 'wifi_auth', 'auth_nearest_wifi', 'collector_template', 'dhcp']
 dir_list = [f for f in listdir("collectors") if isdir(join("collectors", f)) and f not in dir_blacklist]
 
 # create utility objects

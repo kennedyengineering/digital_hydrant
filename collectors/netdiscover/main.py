@@ -5,36 +5,18 @@
 # command utility to scrape: sudo netdiscover -N -P
 # gather information: IP, MAC_ADDRESS, HOSTNAME
 
-################IMPORT STATEMENTS#################
-import sqlite3
-import os
-import subprocess
-import datetime
-from modules.log import log
-import sys
-from modules.upload import upload
+# import collector module from parent directory
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from collector import Collector
 
-# load variables from config file
-db_name = os.environ["db_name"]
-drive_path = os.environ["drive_path"]
-# connect to the SQLite3 database
-conn = sqlite3.connect(str(drive_path) + "/" + str(db_name))
-c = conn.cursor()
-# check passed parameters
-if len(sys.argv) != 2:
-    log("timeout left undefined, exiting...", error=True)
-    exit()
-timeout = sys.argv[1]
-##################################################
+# create collector
+collector_name = "netdiscover"
+collector = Collector(collector_name)
 
-# create table if it does not exist
-table_name = "netdiscover"
-c.execute('''CREATE TABLE IF NOT EXISTS {} (IP TEXT, MAC_ADDRESS TEXT, HOSTNAME TEXT, DATETIME TIMESTAMP)'''.format(table_name))
-
-# scrape the command line utility   # netdiscover either runs indefinetely or just a really long time, a timeout is needed, set in seconds
-log("collecting data for table {}".format(table_name))
-if timeout == "-1":     output = subprocess.run("sudo netdiscover -N -P", shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
-else:                   output = subprocess.run("sudo timeout {} sudo netdiscover -N -P".format(timeout), shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+# scrape the command line utility
+command = "sudo netdiscover -N -P"
+output = collector.execute(command)
 
 # parse the output into desired variables
 output = output.split("\n")
@@ -49,13 +31,15 @@ for i in output:
 simplified_output.remove([])
 
 for i in simplified_output:
+    parsed_output = {}
+
     # IP Adress
     ip = i[0]
-    #print(ip)
+    parsed_output["IP"] = ip
 
     # MAC Address
     mac_address = i[1]
-    #print(mac_address)
+    parsed_output["MAC_ADDRESS"] = mac_address
 
     # Hostname
     name = ""
@@ -64,16 +48,8 @@ for i in simplified_output:
         name += i[ii] + " "
     if name != "":
         name = name[:-1]
-    #print(name)
+    parsed_output["HOSTNAME"] = name
 
+    collector.publish(parsed_output)
 
-    # store to table:   # quotes were added to some strings to comply with SQL syntax
-    date = str(datetime.datetime.now())
-    c.execute('''INSERT INTO {} VALUES({}, {}, {}, {})'''.format(table_name, '"'+str(ip)+'"', '"'+str(mac_address)+'"', '"'+str(name)+'"', '"'+date+'"'))
-    conn.commit()
-    upload(table_name, date)
-
-#commit the changes to db			
-conn.commit()
-#close the connection
-conn.close()
+collector.close()

@@ -48,3 +48,4 @@
 - it is necessary and a good precaution to add the Sqlite connection commit command to avoid the upload function from returning no matches when quereying the database
 - project structure has been reorganized! Each collector is a directory containing atleast main.py and config.yml. Scheduler will automatically find the collectors and execute them according to their configuration file.
 - collector.py handles to repetitive code, and easily standardizes interfacing to the Digital Hydrant system. It automatically creates SQL tables based on input data, handles uploading, and logging.
+- see dhcp collector for a template, removed collector_template directory

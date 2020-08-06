@@ -49,3 +49,9 @@
 - project structure has been reorganized! Each collector is a directory containing atleast main.py and config.yml. Scheduler will automatically find the collectors and execute them according to their configuration file.
 - collector.py handles to repetitive code, and easily standardizes interfacing to the Digital Hydrant system. It automatically creates SQL tables based on input data, handles uploading, and logging.
 - see dhcp collector for a template, removed collector_template directory
+- From Tjaart: The process to create a token:
+    - Log into the web interface
+    - Browse to: https://digital-hydrant.herokuapp.com/manage/tokens
+    - Click "Generate Token", and copy the resulting token
+    - Add the token to your request. I updated the example in the wiki to reflect the change https://github.com/outsideopen/digital-hydrant-server/wiki/Digital-Hydrant-API#example
+- added API token to base level of project directory, in file called api_token, single line. If file name/path changes edit the config files

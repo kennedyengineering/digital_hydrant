@@ -4,6 +4,7 @@ import sqlite3
 import sys
 import re
 import os
+import subprocess
 import time
 from getmac import get_mac_address
 import socket
@@ -11,6 +12,7 @@ import logging
 import threading
 import signal
 import config.global_config as gc
+import json
 
 # create logger objects and configure
 logger = logging.getLogger("Digital Hydrant.publisher")
@@ -41,8 +43,22 @@ cursor = connection.cursor()
 mac_addr = get_mac_address()
 logger.info("Starting database API client")
 
-HOST = os.environ["api_client_host"]
-PORT = int(os.environ["api_client_port"])
+HOST = gc.api_client_host
+PORT = gc.api_client_port
+
+api_token = ""
+if not os.path.exists(gc.api_auth_token_path):
+    logger.error("Authentication file: {} not found".format(gc.api_auth_token_path))
+else:
+    logger.debug("Authentication file: {} found".format(gc.api_auth_token_path))
+    filesize = os.path.getsize(gc.api_auth_token_path)
+    if filesize == 0:
+        logger.error("Authentication file: {} empty".format(gc.api_auth_token_path))
+    else:
+        logger.debug("Authentication file: {} token found".format(gc.api_auth_token_path))
+        api_token_file = open(gc.api_auth_token_path, "r")
+        api_token = api_token_file.readline()
+        api_token_file.close()
 
 queue = []
 
@@ -83,13 +99,21 @@ while True:
 
         payload = payload[:-2] + '}"'
 
-        cmd = '''curl -s -d '{"timestamp": {timestamp}, "type":"{table}", "source":"{mac_addr}", "payload":{payload}}' -H "Content-Type: application/json" -X POST https://digital-hydrant.herokuapp.com/v1 > /dev/null'''
+        cmd = '''curl -s -H "Authorization: Bearer {token}" -d '{"timestamp": {timestamp}, "type":"{table}", "source":"{mac_addr}", "payload":{payload}}' -H "Content-Type: application/json" -X POST https://digital-hydrant.herokuapp.com/v1''' #> /dev/null'''
         timestamp = time.time()
         cmd = cmd.replace("{timestamp}", str(timestamp))
         cmd = cmd.replace("{table}", str(table_name))
         cmd = cmd.replace("{mac_addr}", str(mac_addr))
         cmd = cmd.replace("{payload}", str(payload))
-        os.system(cmd)
+        cmd = cmd.replace("{token}", str(api_token))
+        output = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+        output = json.loads(output)
+
+        # get return value, and if it is zero, mark the database entry as a successful upload
+        if "status" in list(output.keys()):
+            logger.error("Failed to upload data with datetime {}".format(str(date)))
+        else:
+            logger.debug("Successfully uploaded data with datetime {}".format(str(date)))
 
         del queue[0]
 

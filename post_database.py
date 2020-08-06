@@ -36,7 +36,7 @@ interrupted = False
 
 # hydrant script to publish database tables to the web API
 
-connection = sqlite3.connect("/media/USBDrive/hydrant.db")
+connection = sqlite3.connect(gc.drive_path+"/"+gc.db_name)
 cursor = connection.cursor()
 mac_addr = get_mac_address()
 logger.info("Starting database API client")

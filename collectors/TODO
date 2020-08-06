@@ -5,5 +5,4 @@ add uploaded status boolean to all database entries! have post_database.py edit 
 create another daemon to add unqueued entries to the upload queue
 create another daemon to remove entries inserted at a specified time interval
 
-modified dhcp.py to new format, start moving others over
-add proper logging before you do though, add log file path to global_config.py
+add HTTPS/ authentication token to upload method

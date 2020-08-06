@@ -116,13 +116,12 @@ class Collector:
     def __upload__(self, date):
         self.logger.debug("Uploading with datetime {}".format(date))
 
-        # # connect to queue server, notify daemon that entry is ready to be uploaded
-        #
-        # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        #     s.connect((gc.api_client_host, gc.api_client_port))
-        #     payload = str(self.name) + ", " + str(date)
-        #     s.sendall(bytes(payload, "utf-8"))
-        #
+        # connect to queue server, notify daemon that entry is ready to be uploaded
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((gc.api_client_host, gc.api_client_port))
+            payload = str(self.name) + ", " + str(date)
+            s.sendall(bytes(payload, "utf-8"))
 
     def close(self):
         self.logger.debug("Closing out")

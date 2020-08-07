@@ -6,3 +6,5 @@ create another daemon to remove entries inserted at a specified time interval
 add package management system to bootstrap (pipfile? setuptools? docker image?)
 
 test for default credentials in netdiscover if a device on the wrong subnet is found
+
+add wireless_is_enabled toggle to scheduler.py and collector config files, set enabled to false if collector is wireless enabled

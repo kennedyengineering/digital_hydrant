@@ -21,21 +21,25 @@ ch.setFormatter(formatter)
 logger.addHandler(fh)
 logger.addHandler(ch)
 
-redo = True
-while redo:
-    interface_name = subprocess.run('''iwconfig 2>&1 | grep -v "no wireless extensions" | grep -oP "^\w+"''', shell=True, stdout=subprocess.PIPE).stdout.decode("utf-8").split("\n")
-    interface_name.remove('')
-    logger.debug("Found wireless interfaces: {}".format(str(interface_name)))
 
-    activated_interface_name = subprocess.run('''ifconfig | grep -oP "^\w+"''', shell=True, stdout=subprocess.PIPE).stdout.decode("utf-8").split("\n")
-    activated_interface_name.remove('')
-    logger.debug("Found activated network interfaces: {}".format(str(activated_interface_name)))
+if gc.enable_wireless:
+    redo = True
+    while redo:
+        interface_name = subprocess.run('''iwconfig 2>&1 | grep -v "no wireless extensions" | grep -oP "^\w+"''', shell=True, stdout=subprocess.PIPE).stdout.decode("utf-8").split("\n")
+        interface_name.remove('')
+        logger.debug("Found wireless interfaces: {}".format(str(interface_name)))
 
-    redo = False
-    for interface in interface_name:
-        if interface in activated_interface_name:
-            logger.debug("Wireless interface {} is activated".format(interface))
-        else:
-            logger.info("Wireless interface {} not activated, activating".format(interface))
-            os.system("sudo ifconfig {} up".format(interface))
-            redo = True
+        activated_interface_name = subprocess.run('''ifconfig | grep -oP "^\w+"''', shell=True, stdout=subprocess.PIPE).stdout.decode("utf-8").split("\n")
+        activated_interface_name.remove('')
+        logger.debug("Found activated network interfaces: {}".format(str(activated_interface_name)))
+
+        redo = False
+        for interface in interface_name:
+            if interface in activated_interface_name:
+                logger.debug("Wireless interface {} is activated".format(interface))
+            else:
+                logger.info("Wireless interface {} not activated, activating".format(interface))
+                os.system("sudo ifconfig {} up".format(interface))
+                redo = True
+else:
+    logger.info("Enable wireless is disabled in the configuration, continuing")

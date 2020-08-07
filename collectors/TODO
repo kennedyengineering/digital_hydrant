@@ -1,8 +1,6 @@
 
 start moving away from bash and into python, remove bash_config --> change to global_config.py
 
-add uploaded status boolean to all database entries! have post_database.py edit entry and change flag
-create another daemon to add unqueued entries to the upload queue
 create another daemon to remove entries inserted at a specified time interval
 
 add package management system to bootstrap (pipfile? setuptools? docker image?)

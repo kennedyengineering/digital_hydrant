@@ -15,7 +15,7 @@ collector_name = "dhcp"
 collector = Collector(collector_name)
 
 # scrape the command line utility
-command = "sudo dhcpcd -T"
+command = "sudo dhcpcd -T 2> /dev/null | tr '\n' ' '"
 output = collector.execute(command)
 
 # organize data into a dictionary for publishing

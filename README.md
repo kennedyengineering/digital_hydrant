@@ -55,3 +55,5 @@
     - Click "Generate Token", and copy the resulting token
     - Add the token to your request. I updated the example in the wiki to reflect the change https://github.com/outsideopen/digital-hydrant-server/wiki/Digital-Hydrant-API#example
 - added API token to base level of project directory, in file called api_token, single line. If file name/path changes edit the config files
+- uploading in JSON format, curl does not like payloads with newline characters. Use the bash command "tr '/n' ' '" to convert newline to spaces, etc
+- use 2> to redirect stderr output

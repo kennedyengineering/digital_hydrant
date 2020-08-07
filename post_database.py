@@ -114,6 +114,8 @@ while True:
             logger.error("Failed to upload data with datetime {}".format(str(date)))
         else:
             logger.debug("Successfully uploaded data with datetime {}".format(str(date)))
+            cursor.execute('UPDATE {} SET UPLOADED = 1 WHERE DATETIME="{}"'.format(table_name, date))
+            connection.commit()
 
         del queue[0]
 

@@ -110,7 +110,7 @@ while True:
         payload = payload[:-2] + '}"'
 
         cmd = '''curl -s -H "Authorization: Bearer {token}" -d '{"timestamp": {timestamp}, "type":"{table}", "source":"{mac_addr}", "payload":{payload}}' -H "Content-Type: application/json" -X POST https://digital-hydrant.herokuapp.com/v1''' #> /dev/null'''
-        timestamp = time.time()
+        timestamp = int(round(time.time() * 1000))
         cmd = cmd.replace("{timestamp}", str(timestamp))
         cmd = cmd.replace("{table}", str(table_name))
         cmd = cmd.replace("{mac_addr}", str(mac_addr))

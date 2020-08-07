@@ -80,6 +80,16 @@ def queue_server():
 queue_thread = threading.Thread(target=queue_server, daemon=True)
 queue_thread.start()
 
+# select all un-uploaded data entries and add to queue
+logger.debug("Scanning database for un-uploaded entries")
+cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+table_names = cursor.fetchall()
+for name in table_names:
+    cursor.execute("SELECT DATETIME FROM {} WHERE UPLOADED = 0".format(name[0]))
+    dates = cursor.fetchall() # returns a list of tuples with the data
+    for date in dates:
+        queue.append(name[0]+", "+date[0])
+
 # main thread
 while True:
     if len(queue) > 0:
@@ -89,7 +99,7 @@ while True:
         cursor.execute('select * from {} where DATETIME="{}"'.format(table_name, date))
         results = cursor.fetchall()
         names = list(map(lambda x: x[0], cursor.description))
-        logger.debug("Received data with datetime {}, uploading".format(str(date)))
+        logger.debug("Processing data with datetime {}, uploading".format(str(date)))
 
         payload = '"{'
         for index in range(len(names)):
@@ -111,7 +121,7 @@ while True:
 
         # get return value, and if it is zero, mark the database entry as a successful upload
         if "status" in list(output.keys()):
-            logger.error("Failed to upload data with datetime {}".format(str(date)))
+            logger.error("Failed to upload data with datetime {} and output {}".format(str(date), str(output)))
         else:
             logger.debug("Successfully uploaded data with datetime {}".format(str(date)))
             cursor.execute('UPDATE {} SET UPLOADED = 1 WHERE DATETIME="{}"'.format(table_name, date))

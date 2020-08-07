@@ -4,6 +4,7 @@
 
 drive_name = "sda"		            # can find using "lsblk"
 drive_path = "/media/USBDrive"	    # mounting point for the drive
+luks_key_filename = "luks_key"      # filename of the luks_key
 
 db_name = "hydrant.db"	            # name of sqlite3 database, located on USB drive
 

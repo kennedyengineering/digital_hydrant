@@ -21,10 +21,7 @@ else
 	exit
 fi
 
-if $enable_wireless;
-then
-	./setup_wireless
-fi
+./setup_wireless.py
 
 ./post_database.py &
 ./scheduler.py

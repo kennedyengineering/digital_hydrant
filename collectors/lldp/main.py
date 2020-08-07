@@ -30,7 +30,7 @@ try:
         parsed_output["SYSTEM_NAME"] = sysname
 
         # SysDescr
-        sysdescr = output["lldp"]["interface"][i]["chassis"][sysname]["descr"]
+        sysdescr = output["lldp"]["interface"][i]["chassis"][sysname]["descr"].replace("\n", " ")
         parsed_output["SYSTEM_DESCRIPTION"] = sysdescr
        
         # PortID

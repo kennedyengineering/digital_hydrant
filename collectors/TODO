@@ -1,6 +1,4 @@
 
-start moving away from bash and into python, remove bash_config --> change to global_config.py
-
 create another daemon to remove entries inserted at a specified time interval
 
 add package management system to bootstrap (pipfile? setuptools? docker image?)
@@ -10,3 +8,5 @@ test for default credentials in netdiscover if a device on the wrong subnet is f
 add wireless_is_enabled toggle to scheduler.py and collector config files, set enabled to false if collector is wireless enabled
 
 make "output.log" a variable in global_config.py
+
+test for vulnerabilities and crashes. Wifi auth_tester is vulnerable with multiple wireless interfaces, Early interrupt signal does not kill all child processes (used to have trap?)

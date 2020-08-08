@@ -1,3 +1,4 @@
 luks_key
 *.swp
 __pycache__
+wpa_supplicant.conf

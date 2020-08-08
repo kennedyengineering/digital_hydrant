@@ -57,3 +57,4 @@
 - added API token to base level of project directory, in file called api_token, single line. If file name/path changes edit the config files
 - uploading in JSON format, curl does not like payloads with newline characters. Use the bash command "tr '/n' ' '" to convert newline to spaces, etc or in python use "<string>.replace('\n', ' ')"
 - use 2> to redirect stderr output
+- wifi_auth/auth_tester.py has trouble when multiple wireless interfaces are available. Does not work

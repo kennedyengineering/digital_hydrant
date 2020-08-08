@@ -5,17 +5,28 @@ import os
 import setup_usb as usb
 import setup_wireless as wifi
 import logging
+import subprocess
+import signal
+
+
+def signal_handler(signal, frame):
+    global interrupted
+    interrupted = True
+
+
+signal.signal(signal.SIGINT, signal_handler)
+interrupted = False
 
 # main launcher for Digital Hydrant
 # configure hardware and then launch the software
 
 usb_status = usb.setup_usb()
 if usb_status == 0:
-	exit()
+    exit()
 
 wifi_status = wifi.setup_wireless()
 if wifi_status == 0:
-	exit()
+    exit()
 
 # create logger objects and configure
 logger = logging.getLogger("Digital Hydrant")
@@ -34,5 +45,19 @@ logger.info("Starting Digital Hydrant")
 
 logger.debug("Launching Publisher daemon")
 # ./post_database.py &
+publisher = subprocess.Popen("./post_database.py", shell=True, stdout=subprocess.PIPE)
+
 logger.debug("Launching Scheduler")
 # ./scheduler.py
+scheduler = subprocess.Popen("./scheduler.py", shell=True, stdout=subprocess.PIPE)
+
+while 1:
+    if interrupted:
+        logger.critical("Main loop interrupted, exiting")
+        break
+
+# logger.critical("Terminating Scheduler")
+# os.kill(scheduler.pid, signal.SIGTERM)
+#
+# logger.critical("Terminating Publisher")
+# os.kill(publisher.pid, signal.SIGTERM)

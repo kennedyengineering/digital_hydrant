@@ -69,16 +69,19 @@ if auth_time != -1:
         if interface.find(wireless_interface) != -1:
             line = interface
             break
-    if line.find("inet6") != -1:
-        # find IP address
-        line = line.split("\n")
-        for group in line:
-            if group.find("inet6") != -1:
-                line = group
-                break
-        line = line.split()
-        inet6_addr = line[1]
-        collector.logger.debug("Inet6 IP obtained")
+    if line is not None:
+        if line.find("inet6") != -1:
+            # find IP address
+            line = line.split("\n")
+            for group in line:
+                if group.find("inet6") != -1:
+                    line = group
+                    break
+            line = line.split()
+            inet6_addr = line[1]
+            collector.logger.debug("Inet6 IP obtained")
+        else:
+            collector.logger.error("No inet6 IP address found")
     else:
         collector.logger.error("No inet6 IP address found")
     parsed_output["INET6_ADDRESS"] = inet6_addr
@@ -163,11 +166,11 @@ if auth_time != -1:
 
             loaded = True
 
-        except IndexError as err:
+        except Exception as err:
+            poll_counter += 1
             if poll_counter > poll_max:
                 collector.logger.error("Unable to scrap iwconfig")
                 break
-            poll_counter += 1
             collector.logger.error("Error scraping iwconfig, attempt {}/{}, retrying".format(poll_counter, poll_max))
             loaded = False
             time.sleep(0.2)

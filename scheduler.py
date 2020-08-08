@@ -91,7 +91,7 @@ class Scheduler:
             self.queue.remove(util)
 
 
-logger.info("Starting Digital Hydrant")
+logger.info("Starting Scheduler")
 
 # load collector directory path names
 # directories to be not added to the collector dir list

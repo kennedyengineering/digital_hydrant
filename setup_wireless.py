@@ -8,21 +8,21 @@ import subprocess
 # setup wireless utility script
 # ensures that all wireless interfaces are operational before launching Digital Hydrant
 
-# create logger objects and configure
-logger = logging.getLogger("Digital Hydrant.setup.Wireless")
-logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler(gc.drive_path + "/output.log")
-fh.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)  # could also be ERROR or higher
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
-logger.addHandler(fh)
-logger.addHandler(ch)
-
 
 def setup_wireless():
+    # create logger objects and configure
+    logger = logging.getLogger("Digital Hydrant.setup.Wireless")
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(gc.drive_path + "/output.log")
+    fh.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)  # could also be ERROR or higher
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
     if gc.enable_wireless:
         redo = True
         while redo:

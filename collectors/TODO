@@ -10,3 +10,5 @@ add wireless_is_enabled toggle to scheduler.py and collector config files, set e
 make "output.log" a variable in global_config.py
 
 test for vulnerabilities and crashes. Wifi auth_tester is vulnerable with multiple wireless interfaces, Early interrupt signal does not kill all child processes (used to have trap?)
+
+fix \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 type ESSID in wifi_quality, \x00 is a null character so something it messed up with the parsing

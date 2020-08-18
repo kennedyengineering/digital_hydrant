@@ -12,3 +12,6 @@ make "output.log" a variable in global_config.py
 test for vulnerabilities and crashes. Wifi auth_tester is vulnerable with multiple wireless interfaces, Early interrupt signal does not kill all child processes (used to have trap?)
 
 fix \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 type ESSID in wifi_quality, \x00 is a null character so something it messed up with the parsing
+
+hydra -P snmp-wordlist-lawler.txt 192.168.1.3 snmp
+ -- new collector, searches netdiscover table, creates list of devices on the wrong subnet (a subnet that the rpi is not on) and runs a word list against using hydra

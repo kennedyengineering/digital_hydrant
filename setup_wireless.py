@@ -42,6 +42,8 @@ def setup_wireless():
                     logger.info("Wireless interface {} not activated, activating".format(interface))
                     os.system("sudo ifconfig {} up".format(interface))
                     redo = True
+            logger.info("Wireless configured successfully")
+
     else:
         logger.info("Enable wireless is disabled in the configuration, continuing")
 

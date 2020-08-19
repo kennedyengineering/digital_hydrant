@@ -12,6 +12,7 @@ exec_duration: -1
 
 # wordlist path
 wordlist_path: "collectors/hydra/wordlist.txt"
-
 # user path
 userlist_path: "collectors/hydra/userlist.txt"
+# interface to use
+interface: "eth0"

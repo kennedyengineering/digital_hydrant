@@ -18,3 +18,4 @@ hydra -P snmp-wordlist-lawler.txt 192.168.1.3 snmp
 
 usb toggle in config -- using mass storage or no?
 
+add ping -b 255.255.255.255 to netdiscover to get devices to respond and be discovered

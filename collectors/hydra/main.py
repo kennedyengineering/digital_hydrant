@@ -61,12 +61,20 @@ for target in target_ips:
 
     collector.logger.debug("Operating on target {}, starting attack".format(target))
 
-    output_log = ""
-    
+    # connect to subnet, create a new IP
+    # use X.X.X.227 because it is rarely used
+    ip = strip_ip(target)[:-2] + ".227"
+    collector.logger.debug("Joining {} network, with IP {}".format(strip_ip(target), ip))
+    null = collector.execute("sudo ifconfig {}:1 {}".format(iface, ip))
+
     # scrape the command line utility
     ssh_output = collector.execute(command_ssh_template.replace("<hostname>", target))
     snmp_output = collector.execute(command_snmp_template.replace("<hostname>", target))
     
+    #disconnect from subnet
+    collector.logger.debug("Disconnecting from {} network".format(strip_ip(target)))
+    null = collector.execute("sudo ifconfig {}:1 down".format(iface))
+
     # organize data into a dictionary for publishing
     parsed_output["TARGET"] = target
     parsed_output["SSH_OUTPUT_LOG"] = ssh_output

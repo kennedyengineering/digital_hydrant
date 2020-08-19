@@ -49,8 +49,10 @@ if len(target_ips) == 0:
 # remove duplicate IP's
 target_ips = list(dict.fromkeys(target_ips))
 
-command_ssh_template = "sudo hydra -I -L {} -P {} <hostname> ssh 2>&1".format(collector.misc_config['userlist_path'], collector.misc_config['wordlist_path'])
-command_snmp_template = "sudo hydra -I -P {} <hostname> snmp 2>&1".format(collector.misc_config['wordlist_path'])
+# remove already scanned devices? Filter by TARGET column
+
+command_ssh_template = "sudo hydra -I -L {} -P {} <hostname> ssh 2>&1 | tr '\n' ' '".format(collector.misc_config['userlist_path'], collector.misc_config['wordlist_path'])
+command_snmp_template = "sudo hydra -I -P {} <hostname> snmp 2>&1 | tr '\n' ' '".format(collector.misc_config['wordlist_path'])
 
 parsed_output = {}
 
@@ -62,17 +64,14 @@ for target in target_ips:
     output_log = ""
     
     # scrape the command line utility
-    output = collector.execute(command_ssh_template.replace("<hostname>", target))
-    output_log = output_log + output + "\n"
-    output = collector.execute(command_snmp_template.replace("<hostname>", target))
-    output_log = output_log + output + "\n"
+    ssh_output = collector.execute(command_ssh_template.replace("<hostname>", target))
+    snmp_output = collector.execute(command_snmp_template.replace("<hostname>", target))
     
     # organize data into a dictionary for publishing
     parsed_output["TARGET"] = target
-    parsed_output["OUTPUT_LOG"] = output_log
+    parsed_output["SSH_OUTPUT_LOG"] = ssh_output
+    parsed_output["SNMP_OUTPUT_LOG"] = snmp_output
     collector.publish(parsed_output)
-
-    break
 
 collector.close()
 

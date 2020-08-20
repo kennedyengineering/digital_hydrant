@@ -9,6 +9,7 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from collector import Collector
+import subprocess
 
 # create collector
 collector_name = "netdiscover"
@@ -16,7 +17,13 @@ collector = Collector(collector_name)
 
 # scrape the command line utility
 command = "sudo netdiscover -N -P"
-output = collector.execute(command)
+if collector.exec_duration != -1:
+    command = "sudo timeout {} ".format(collector.exec_duration) + command
+collector.logger.debug("Broadcasting to 255.255.255.255 network")
+broadcast_proc = subprocess.Popen("ping -b 255.255.255.255 2>&1", shell=True, stdout=subprocess.PIPE)
+collector.logger.debug("Executing {}".format(command))
+output = subprocess.run(command, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
+broadcast_proc.kill()
 
 # parse the output into desired variables
 output = output.split("\n")

@@ -13,7 +13,7 @@ def setup_wireless():
     # create logger objects and configure
     logger = logging.getLogger("Digital Hydrant.setup.Wireless")
     logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(gc.drive_path + "/output.log")
+    fh = logging.FileHandler(gc.drive_path + "/" + gc.log_name)
     fh.setLevel(logging.DEBUG)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)  # could also be ERROR or higher

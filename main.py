@@ -20,9 +20,12 @@ interrupted = False
 # main launcher for Digital Hydrant
 # configure hardware and then launch the software
 
-usb_status = usb.setup_usb()
-if usb_status == 0:
-    exit()
+if gc.enable_drive:
+    usb_status = usb.setup_usb()
+    if usb_status == 0:
+        exit()
+else:
+    gc.drive_path = os.path.dirname(os.path.realpath(__file__))
 
 wifi_status = wifi.setup_wireless()
 if wifi_status == 0:
@@ -31,7 +34,7 @@ if wifi_status == 0:
 # create logger objects and configure
 logger = logging.getLogger("Digital Hydrant")
 logger.setLevel(logging.DEBUG)
-fh = logging.FileHandler(gc.drive_path + "/output.log")
+fh = logging.FileHandler(gc.drive_path + "/" + gc.log_name)
 fh.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)  # could also be ERROR or higher
@@ -56,8 +59,3 @@ while 1:
         logger.critical("Main loop interrupted, exiting")
         break
 
-# logger.critical("Terminating Scheduler")
-# os.kill(scheduler.pid, signal.SIGTERM)
-#
-# logger.critical("Terminating Publisher")
-# os.kill(publisher.pid, signal.SIGTERM)

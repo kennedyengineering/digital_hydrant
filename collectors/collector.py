@@ -25,7 +25,7 @@ class Collector:
         # create logger objects and configure
         self.logger = logging.getLogger("Digital Hydrant."+self.name)
         self.logger.setLevel(logging.DEBUG)
-        self.fh = logging.FileHandler(gc.drive_path+"/output.log")
+        self.fh = logging.FileHandler(gc.drive_path+"/"+gc.log_name)
         self.fh.setLevel(logging.DEBUG)
         self.ch = logging.StreamHandler()
         self.ch.setLevel(logging.INFO)      # could also be ERROR or higher

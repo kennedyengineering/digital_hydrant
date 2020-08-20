@@ -3,14 +3,14 @@
 # sets global variables related to the system and desired runtime behavior
 import os
 
-enable_drive = False
+enable_drive = True
 
 drive_name = "sda"		            # can find using "lsblk"
 luks_key_filename = "luks_key"      # filename of the luks_key
 
 drive_path = "/media/USBDrive"	    # mounting point for the drive
 if not enable_drive:
-    drive_path = str(os.path.dirname(os.path.realpath(__file__)))+"/temp"
+    drive_path = str(os.getcwd())+"/temp"
 
 db_name = "hydrant.db"	            # name of sqlite3 database, located on USB drive
 log_name = "output.log"

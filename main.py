@@ -24,8 +24,6 @@ if gc.enable_drive:
     usb_status = usb.setup_usb()
     if usb_status == 0:
         exit()
-else:
-    gc.drive_path = os.path.dirname(os.path.realpath(__file__))
 
 wifi_status = wifi.setup_wireless()
 if wifi_status == 0:

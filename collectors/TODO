@@ -11,10 +11,6 @@ fix \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00
 modify the upload method to allow \ with out errors
 
 
-
-
-new collector: nmap port scanning, find open ports. possibly run 
-
 create another daemon to remove entries inserted at a specified time interval
 
 add package management system to bootstrap (pipfile? setuptools? docker image?)

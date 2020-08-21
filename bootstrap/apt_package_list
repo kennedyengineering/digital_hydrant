@@ -11,3 +11,4 @@ python3-pip
 dhcpcd5
 net-tools
 hydra
+nmap

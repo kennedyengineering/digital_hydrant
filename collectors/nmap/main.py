@@ -21,19 +21,19 @@ collector = Collector(collector_name)
 iface = collector.misc_config['interface']
 ifaces = netifaces.interfaces()
 if iface not in ifaces:
-    print(iface, "not available, exiting...")
+    collector.logger.error("Interface {} not available, exiting...".format(iface))
     collector.close()
     exit()
 else:
-    print(iface, "available")
+    collector.logger.debug("Interface {} available".format(iface))
 
 addrs = netifaces.ifaddresses(iface)[netifaces.AF_INET]
 if len(addrs) == 0:
-    print("no address available on", iface, "exiting...")
+    collector.logger.error("No address available on interface {}, exiting...".format(iface))
     collector.close()
     exit()
 else:
-    print("address available on", iface)
+    collector.logger.debug("Address available on interface {}".format(iface))
 
 addr = addrs[0]
 ip_addr = addr['addr']

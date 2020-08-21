@@ -11,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from collector import Collector
 import ipaddress
 import netifaces
+import re
 
 # create collector
 collector_name = "nmap"
@@ -60,14 +61,46 @@ for entry in output:
 
     index += 1
 
-for h in hosts:
-    print(h)
+for host in hosts:
+    parsed_output = {}
 
+    # find IP address
+    ip = re.search(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', host[0]).group()
 
+    parsed_output["IP"] = ip
 
-# organize data into a dictionary for publishing
-#parsed_output = {}
-#parsed_output["DHCP_LOG"] = output
-#collector.publish(parsed_output)
+    # perform a port scan
+    command = "sudo nmap -sS {}".format(ip)
+    output = collector.execute(command)
+    
+    parsed_output["SCAN_LOG"] = output.replace("\n", " ")
+
+    # parse output into port list
+    output = output.split("\n")
+    port_list = []
+    index = 0
+    for entry in output:
+        if "PORT" in entry:
+            index += 1
+            while True:
+                if "MAC Address" in output[index]:
+                    break
+                else:
+                    port_list.append(output[index])
+                    index += 1
+
+        index += 1
+
+    port_string = ""
+    for port in port_list:
+        port = port.split(" ")
+        port = port[0]
+        port_string = port_string + str(port) + " "
+    port_string = port_string[:-1]
+       
+    parsed_output["OPEN_PORTS"] = port_string
+
+    collector.publish(parsed_output)
 
 collector.close()
+

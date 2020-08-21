@@ -3,7 +3,7 @@
 # sets global variables related to the system and desired runtime behavior
 import os
 
-enable_drive = True
+enable_drive = True                 # toggle switch, enable external drive for storage or use temp folder
 
 drive_name = "sda"		            # can find using "lsblk"
 luks_key_filename = "luks_key"      # filename of the luks_key

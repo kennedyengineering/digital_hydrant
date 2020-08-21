@@ -1,10 +1,5 @@
 
-usb toggle in config -- using mass storage or no?
-
 add wireless_is_enabled toggle to scheduler.py and collector config files, set enabled to false if collector is wireless enabled
-
-make "output.log" a variable in global_config.py
-
 
 
 

@@ -1,15 +1,14 @@
-
-add wireless_is_enabled toggle to scheduler.py and collector config files, set enabled to false if collector is wireless enabled
-
-https://pypi.org/project/netifaces/
-replace bash scripts looking for interfaces with python module
-
 test for vulnerabilities and crashes. Wifi auth_tester is vulnerable with multiple wireless interfaces, Early interrupt signal does not kill all child processes (used to have trap?)
 
 fix \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 type ESSID in wifi_quality, \x00 is a null character so something it messed up with the parsing
 
 modify the upload method to allow \ with out errors
 
+
+https://pypi.org/project/netifaces/
+replace bash scripts looking for interfaces with python module
+
+add wireless_is_enabled toggle to scheduler.py and collector config files, set enabled to false if collector is wireless enabled
 
 create another daemon to remove entries inserted at a specified time interval
 

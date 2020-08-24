@@ -109,22 +109,28 @@ while True:
 
         payload = payload[:-2] + '}"'
 
-        cmd = '''curl -s -H "Authorization: Bearer {token}" -d '{"timestamp": {timestamp}, "type":"{table}", "source":"{mac_addr}", "payload":{payload}}' -H "Content-Type: application/json" -X POST https://digital-hydrant.herokuapp.com/v1''' #> /dev/null'''
+        cmd = '''curl -s -H "Authorization: Bearer {token}" -d '{"timestamp": {timestamp}, "type":"{table}", "source":"{mac_addr}", "payload":{payload}}' -H "Content-Type: application/json" -X POST https://digital-hydrant.herokuapp.com/v1 2>&1'''
         timestamp = int(round(time.time() * 1000))
         cmd = cmd.replace("{timestamp}", str(timestamp))
         cmd = cmd.replace("{table}", str(table_name))
         cmd = cmd.replace("{mac_addr}", str(mac_addr))
         cmd = cmd.replace("{payload}", str(payload))
         cmd = cmd.replace("{token}", str(api_token))
-        output = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
-        output = json.loads(output)
+        raw_output = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 
-        # get return value, and if it is zero, mark the database entry as a successful upload
-        if "status" in list(output.keys()):
-            logger.error("Failed to upload data with datetime {} and output {}".format(str(date), str(output)))
-        else:
-            logger.debug("Successfully uploaded data with datetime {}".format(str(date)))
-            cursor.execute('UPDATE {} SET UPLOADED = 1 WHERE DATETIME="{}"'.format(table_name, date))
+        try:
+            output = json.loads(raw_output)
+            # get return value, and if it is zero, mark the database entry as a successful upload
+            if "status" in list(output.keys()):
+                logger.error("Failed to upload data with datetime {} and output {}".format(str(date), str(output)))     # server error
+            else:
+                logger.debug("Successfully uploaded data with datetime {}".format(str(date)))
+                cursor.execute('UPDATE {} SET UPLOADED = 1 WHERE DATETIME="{}"'.format(table_name, date))               # no error
+                connection.commit()
+
+        except Exception as err:                                                                                        # local error
+            logger.error("Data with datetime {} failed to upload with error: {}, and output: {}".format(date, err, raw_output))
+            cursor.execute('UPDATE {} SET UPLOADED = 3 WHERE DATETIME="{}"'.format(table_name, date))   # uploaded = 3, means error, so it can be fixed later and won't try to be uploaded again
             connection.commit()
 
         del queue[0]
@@ -134,3 +140,4 @@ while True:
         break
 
 connection.close()
+

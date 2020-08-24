@@ -80,13 +80,17 @@ class Collector:
 
         self.logger.debug("Parsed {}".format(config_path))
 
-    def execute(self, cmd):
+    def execute(self, cmd, timeout=None):
 
         command = str(cmd)
 
-        if self.exec_duration != -1:
-            command = "sudo timeout {} ".format(self.exec_duration) + command
-        self.logger.debug("Executing {}".format(command))
+        if timeout == None:
+            if self.exec_duration != -1:
+                command = "sudo timeout {} ".format(self.exec_duration) + command
+            self.logger.debug("Executing {}".format(command))
+        else:
+            command = "sudo timeout {} ".format(timeout) + command
+            self.logger.debug("Executing {}".format(command))
 
         output = subprocess.run(command, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
 

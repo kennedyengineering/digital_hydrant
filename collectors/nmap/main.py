@@ -71,7 +71,7 @@ for host in hosts:
 
     # perform a port scan
     command = "sudo nmap -sS {}".format(ip)
-    output = collector.execute(command)
+    output = collector.execute(command, timeout=60)
     
     parsed_output["SCAN_LOG"] = output.replace("\n", " ")
 

@@ -40,11 +40,30 @@ else:
     collector.logger.debug("Found netdiscover data")
 
 collector.cursor.execute("SELECT IP FROM netdiscover WHERE IP NOT LIKE '{}%'".format(correct_ip[:-2]))
-target_ips = (collector.cursor.fetchall())
+target_ips = collector.cursor.fetchall()
 if len(target_ips) == 0:
     collector.logger.error("No IP's found to be on the wrong subnet, exiting...")
     collector.close()
     exit()
+
+# find all IP's with an open SSH port
+collector.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='nmap';")
+result = collector.cursor.fetchall()
+if len(result) == 0:
+    collector.logger.error("No nmap data available, exiting...")
+    collector.close()
+    exit()
+else:
+    collector.logger.debug("Found nmap data")
+
+collector.cursor.execute("SELECT IP FROM nmap WHERE OPEN_PORTS LIKE '{}%'".format("22/tcp"))
+nmap_target_ips = collector.cursor.fetchall()
+target_ips = target_ips + nmap_target_ips
+if len(nmap_target_ips) == 0:
+    collector.logger.error("No IP's found with open SSH ports, exiting...")
+    collector.close()
+    exit()
+
 
 # remove duplicate IP's
 target_ips = list(dict.fromkeys(target_ips))
@@ -63,17 +82,19 @@ for target in target_ips:
 
     # connect to subnet, create a new IP
     # use X.X.X.227 because it is rarely used
-    ip = strip_ip(target)[:-2] + ".227"
-    collector.logger.debug("Joining {} network, with IP {}".format(strip_ip(target), ip))
-    null = collector.execute("sudo ifconfig {}:1 {}".format(iface, ip))
+    if strip_ip(target) != correct_ip: 
+        ip = strip_ip(target)[:-2] + ".227"
+        collector.logger.debug("Joining {} network, with IP {}".format(strip_ip(target), ip))
+        null = collector.execute("sudo ifconfig {}:1 {}".format(iface, ip))
 
     # scrape the command line utility
     ssh_output = collector.execute(command_ssh_template.replace("<hostname>", target))
     snmp_output = collector.execute(command_snmp_template.replace("<hostname>", target))
     
     #disconnect from subnet
-    collector.logger.debug("Disconnecting from {} network".format(strip_ip(target)))
-    null = collector.execute("sudo ifconfig {}:1 down".format(iface))
+    if strip_ip(target) != correct_ip:
+        collector.logger.debug("Disconnecting from {} network".format(strip_ip(target)))
+        null = collector.execute("sudo ifconfig {}:1 down".format(iface))
 
     # organize data into a dictionary for publishing
     parsed_output["TARGET"] = target

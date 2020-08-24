@@ -122,7 +122,7 @@ while True:
             output = json.loads(raw_output)
             # get return value, and if it is zero, mark the database entry as a successful upload
             if "status" in list(output.keys()):
-                logger.error("Failed to upload data with datetime {} and output {}".format(str(date), str(output)))     # server error
+                logger.error("Failed to upload data with datetime {}, and output: {}".format(str(date), str(output)))     # server error
             else:
                 logger.debug("Successfully uploaded data with datetime {}".format(str(date)))
                 cursor.execute('UPDATE {} SET UPLOADED = 1 WHERE DATETIME="{}"'.format(table_name, date))               # no error

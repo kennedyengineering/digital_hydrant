@@ -57,3 +57,8 @@ while 1:
         logger.critical("Main loop interrupted, exiting")
         break
 
+logger.critical("Terminating Scheduler")
+os.kill(scheduler.pid, signal.SIGTERM)
+
+logger.critical("Terminating Publisher")
+os.kill(publisher.pid, signal.SIGTERM)

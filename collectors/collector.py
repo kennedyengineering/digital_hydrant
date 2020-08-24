@@ -73,6 +73,7 @@ class Collector:
                 self.exec_duration = data.pop("exec_duration", None)
                 self.exec_time = data.pop("exec_time", None)
                 self.enabled = data.pop("enabled", None)
+                self.wireless = data.pop("wireless", None)
                 self.misc_config = data
             except KeyError as err:
                 self.logger.error("Failed to parse {}, with error {}".format(config_path, err))

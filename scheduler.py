@@ -47,6 +47,7 @@ class Utility:
         self.enabled = False
         self.exec_time = None
         self.exec_duration = None
+        self.wireless = False
 
         self.load_yaml(config_path)
 
@@ -59,6 +60,9 @@ class Utility:
                 self.enabled = data["enabled"]
                 self.exec_time = data["exec_time"]
                 self.exec_duration = data["exec_duration"]
+                self.wireless = data["wireless"]
+                if gc.enable_wireless == False and self.wireless == True:
+                    self.enabled = False
             except KeyError as err:
                 self.logger.error("Failed to parse {}, with error {}".format(config_path, err))
                 return

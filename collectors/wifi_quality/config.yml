@@ -9,3 +9,6 @@ enabled: true
 exec_time: 10
 # -1 == run indefinitely, not required for most collectors
 exec_duration: -1
+# tell the scheduler if wireless is utilized by this collector
+wireless: true
+

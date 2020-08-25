@@ -3,3 +3,4 @@ luks_key
 __pycache__
 wpa_supplicant.conf
 temp/*
+hydra.restore

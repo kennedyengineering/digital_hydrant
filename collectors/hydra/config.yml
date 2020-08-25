@@ -19,3 +19,7 @@ wordlist_path: "collectors/hydra/wordlist.txt"
 userlist_path: "collectors/hydra/userlist.txt"
 # interface to use
 interface: "eth0"
+
+# enable sources
+enable_netdiscover: true
+enable_nmap: true

@@ -36,19 +36,15 @@ if collector.misc_config["enable_netdiscover"] == True:
     collector.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='netdiscover';")
     result = collector.cursor.fetchall()
     if len(result) == 0:
-        collector.logger.error("No netdiscover data available, exiting...")
-        collector.close()
-        exit()
+        collector.logger.error("No netdiscover data available")
     else:
         collector.logger.debug("Found netdiscover data")
 
-    collector.cursor.execute("SELECT IP FROM netdiscover WHERE IP NOT LIKE '{}%'".format(correct_ip[:-2]))
-    netdiscover_target_ips = collector.cursor.fetchall()
-    target_ips = target_ips + netdiscover_target_ips
-    if len(netdiscover_target_ips) == 0:
-        collector.logger.error("No IP's found to be on the wrong subnet, exiting...")
-        collector.close()
-        exit()
+        collector.cursor.execute("SELECT IP FROM netdiscover WHERE IP NOT LIKE '{}%'".format(correct_ip[:-2]))
+        netdiscover_target_ips = collector.cursor.fetchall()
+        target_ips = target_ips + netdiscover_target_ips
+        if len(netdiscover_target_ips) == 0:
+            collector.logger.error("No IP's found to be on the wrong subnet")
 else:
     collector.logger.debug("netdiscover data disabled via config, continuing")
 
@@ -57,19 +53,15 @@ if collector.misc_config["enable_nmap"] == True:
     collector.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='nmap';")
     result = collector.cursor.fetchall()
     if len(result) == 0:
-        collector.logger.error("No nmap data available, exiting...")
-        collector.close()
-        exit()
+        collector.logger.error("No nmap data available")
     else:
         collector.logger.debug("Found nmap data")
 
-    collector.cursor.execute("SELECT IP FROM nmap WHERE OPEN_PORTS LIKE '{}%'".format("22/tcp"))
-    nmap_target_ips = collector.cursor.fetchall()
-    target_ips = target_ips + nmap_target_ips
-    if len(nmap_target_ips) == 0:
-        collector.logger.error("No IP's found with open SSH ports, exiting...")
-        collector.close()
-        exit()
+        collector.cursor.execute("SELECT IP FROM nmap WHERE OPEN_PORTS LIKE '{}%'".format("22/tcp"))
+        nmap_target_ips = collector.cursor.fetchall()
+        target_ips = target_ips + nmap_target_ips
+        if len(nmap_target_ips) == 0:
+            collector.logger.error("No IP's found with open SSH ports")
 else:
     collector.logger.debug("nmap data disabled via config, continuing")
 

@@ -72,6 +72,7 @@ vlan_ids = [string for string in vlan_ids if string != ""]
 # arp scan vlans for hosts
 #IP_ADDRESS = "10.10.1.0/24"
 addrs = netifaces.ifaddresses(iface)[netifaces.AF_INET]
+addr = addrs[0]
 ip_addr = addr['addr']
 subnet = addr['netmask']
 net = str(ipaddress.ip_network('{}/{}'.format(ip_addr, subnet), strict=False))
@@ -80,7 +81,16 @@ for vlan in vlan_ids:
     collector.logger.debug("Scanning for hosts on vlan {}, with IP {}".format(vlan, net))
     command = '''sudo arp-scan -Q {} -I {} {} -t 500 2>&1 |grep "802.1Q VLAN="'''.format(vlan, iface, net)
     scan_results = subprocess.run(command, shell=True, stdout=subprocess.PIPE).stdout.decode('utf-8')
-    collector.logger.info(scan_results)
+    scan_results = scan_results.split("\n")
+    scan_results = [string for string in scan_results if string != ""]
+    for result in scan_results:
+        parsed_output = {}
+        result = result.split("\t")
+        parsed_output["IP"] = result[0]
+        parsed_output["MAC"] = result[1]
+        parsed_output["VLAN"] = vlan
+        parsed_output["HOST_INFORMATION"] = result[2]
+        collector.publish(parsed_output)
     
 # bring down yersinia process
 yersinia.kill()

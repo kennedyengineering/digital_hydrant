@@ -18,6 +18,8 @@ wireless: false
 wordlist_path: "collectors/hydra/wordlist.txt"
 # user path
 userlist_path: "collectors/hydra/userlist.txt"
+# snmp wordlist path
+snmp_wordlist_path: "collectors/hydra/snmp_wordlist.txt"
 # interface to use
 interface: "eth0"
 

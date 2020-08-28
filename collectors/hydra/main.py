@@ -73,7 +73,7 @@ target_ips = list(dict.fromkeys(target_ips))
 # remove already scanned devices? Filter by TARGET column
 
 command_ssh_template = "sudo hydra -I -L {} -P {} <hostname> ssh 2>&1 | tr '\n' ' '".format(collector.misc_config['userlist_path'], collector.misc_config['wordlist_path'])
-command_snmp_template = "sudo hydra -I -P {} <hostname> snmp 2>&1 | tr '\n' ' '".format(collector.misc_config['wordlist_path'])
+command_snmp_template = "sudo hydra -I -P {} <hostname> snmp 2>&1 | tr '\n' ' '".format(collector.misc_config['snmp_wordlist_path'])
 
 parsed_output = {}
 

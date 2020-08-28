@@ -1,24 +1,94 @@
-"dependencies"
-# for setting up USB encryption
-# instructions from: https://linux.tips/tutorials/how-to-encrypt-a-usb-drive-on-linux-operating-system
-- shred
-- cryptsetup
-- wireless-tools
-- egrep 
-- sqlite3
-- netdiscover
-- lldpd
-- iw
-- wpasupplicant
-- speedtest-cli
-- iperf
-- python3-pip
-- dhcpcd5
+<a href="http://outsideopen.com"><img src="https://cdn.pixabay.com/photo/2017/06/27/20/24/fire-hydrants-2448725_960_720.png" title="Outside Open" alt="Outside Open"></a>
 
-"pip3 packages"
-- getmac
+# Digital Hydrant Collectors
 
-"development notes"
+> Open Source network information collector, developed for the Digital Hydrant project
+
+![Build Status](http://img.shields.io/travis/badges/badgerbadgerbadger.svg?style=flat-square) [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Features](#features)
+- [Contributing](#contributing)
+- [Team](#team)
+- [FAQ](#faq)
+- [Support](#support)
+- [License](#license)
+
+
+---
+
+## Installation
+
+- All the code required to get started is in this repository
+- Execute the `bootstrap/bootstrap.sh` to install dependencies
+- Allow passwordless `sudo` on your [user](https://timonweb.com/devops/how-to-enable-passwordless-sudo-for-a-specific-user-in-linux/)
+
+### Clone
+
+- Clone this repo to your local machine using `https://github.com/outsideopen/digital-hydrant-collectors`
+
+### Setup
+
+> clone this repository
+
+```shell
+$ git clone https://github.com/outsideopen/digital-hydrant-collectors.git
+```
+
+> `cd` into the base directory
+
+```shell
+$ cd ~/digital-hydrant-collectors
+```
+
+> run the bootstrap script
+
+```shell
+$ ./bootstrap/bootstrap.sh
+```
+
+> create an API token on the Digital Hydrant [website](https://digital-hydrant.herokuapp.com/login)
+>
+> store API token in file `api_token`
+
+```shell
+$ <your_token> > api_token
+```
+
+> view `config/global_config.py` and configure desired runtime behaviour
+
+```shell
+$ vim config/global_config.py
+```
+
+> view `collectors/<collector_name>/config.yml` and configure desired runtime behaviour
+
+```shell
+$ vim collectors/<collector_name>/config.yml
+```
+
+> (optional) plug in a USB mass storage device
+
+> start Digital Hydrant
+
+```shell
+$ ./DH_launcher.sh
+```
+
+---
+
+## Features
+
+- Easily add new collectors
+- Build off existing network scanning tools
+- Integrated logging
+- Very flexible and configurable
+
+## Develpment Notes
+
 - After completing software, make SD card a readonly filesystem for stability. Use usb drive for storing logs
 - setup_usb is a script for managing the encrypted volume, give device path "EX: /dev/sda" and operation "create, unmount, mount" running with sudo is not required
 - wifi interface may not be visible by "ifconfig", find interface name with "iwconfig", and then "ifconfig <interface> up"
@@ -58,3 +128,63 @@
 - uploading in JSON format, curl does not like payloads with newline characters. Use the bash command "tr '/n' ' '" to convert newline to spaces, etc or in python use "<string>.replace('\n', ' ')"
 - use 2> to redirect stderr output
 - wifi_auth/auth_tester.py has trouble when multiple wireless interfaces are available. Does not work
+
+## To Do
+
+- test for vulnerabilities and crashes. Wifi auth_tester is vulnerable with multiple wireless interfaces, Early interrupt signal does not kill all child processes (used to have trap?)
+- fix \x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00 type ESSID in wifi_quality, \x00 is a null character so something it messed up with the parsing
+- modify the upload method to allow \ with out errors
+- replace bash scripts looking for interfaces with python [module](https://pypi.org/project/netifaces/)
+- create another daemon to remove entries inserted at a specified time interval
+- add package management system to bootstrap (pipfile? setuptools? docker image?)
+---
+
+## Contributing
+### Step 1
+
+- **Option 1**
+    - 🍴 Fork this repo!
+
+- **Option 2**
+    - 👯 Clone this repo to your local machine using `https://github.com/outsideopen/digital-hydrant-collectors`
+
+### Step 2
+
+- **HACK AWAY!** 🔨🔨🔨
+
+### Step 3
+
+- 🔃 Create a new pull [request](https://github.com/outsideopen/digital-hydrant-collectors/compare)
+
+---
+
+## Team
+
+> Contributors
+
+| <a href="https://github.com/kennedyengineering" target="_blank">**kennedyengineering**</a> 
+| :---: |
+| [![kennedyengineering](https://avatars2.githubusercontent.com/u/31577746?s=200)](http://github.com/kennedyengineering)
+| <a href="http://github.com/kennedyengineering" target="_blank">`github.com/kennedyengineering`</a>
+
+---
+
+## FAQ
+
+- Outside Open is a team of smart, passionate artists, photographers, cyclists, hikers, soccer players, parents, beekeepers, blacksmiths and tinkerers. What unites this disparate team is a love for building and integrating amazing technology to help their clients succeed.  They think outside the “singular technical solution” box.  They embrace solutions from both the standard corporate software/hardware world and the open source community.  This sets them apart and enables them to provide highly customized and scaleable solutions. Outside Open was founded in 2012 by Trevor Young and Greg Lawler, two technology leaders with a love for technology and a desire to help others succeed.
+
+---
+
+## Support
+
+Reach out at one of the following places!
+
+- Website at <a href="http://outsideopen.com" target="_blank">`outsideopen.com`</a>
+
+---
+
+## License
+
+[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+
+- **[MIT license](http://opensource.org/licenses/mit-license.php)**

@@ -122,6 +122,13 @@ for vlan in vlan_ids:
             name = name[:-1]
         parsed_output["HOST_INFORMATION"] = name
 
+        # NMAP Port Scan
+        collector.logger.debug("Scanning for open ports on vlan {}, IP {}".format(vlan, ip))
+        command = "sudo nmap -e {}.{} -sS {}".format(iface, vlan, ip)
+        output = collector.execute(command, timeout=60)
+        output = output.replace("\n", " ")
+        parsed_output["NMAP_SCAN"] = output
+
         collector.publish(parsed_output)
 
     collector.logger.debug("Removing vlan {} from interface {}, waiting {} seconds".format(vlan, iface, VLANWAIT))

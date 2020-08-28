@@ -12,3 +12,6 @@ dhcpcd5
 net-tools
 hydra
 nmap
+tshark
+yersinia
+vlan

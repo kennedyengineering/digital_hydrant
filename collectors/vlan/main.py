@@ -25,6 +25,7 @@ collector = Collector(collector_name)
 TAGSEC = 90
 CDPSEC = 90
 DTPWAIT = 20
+VLANWAIT = 10
 
 # verify that the user supplied interface is available
 ifaces = netifaces.interfaces()
@@ -37,7 +38,7 @@ else:
     collector.logger.debug("Interface {} found".format(iface))
 
 # verify that CDP is enabled
-collector.logger.debug("Sniffing CDP Packets on interface {}".format(iface))
+collector.logger.debug("Sniffing CDP Packets on interface {}, waiting {} seconds".format(iface, CDPSEC))
 command = '''sudo tshark -a duration:{} -i {} -Y "cdp" -V 2>&1 | sort --unique'''.format(CDPSEC, iface)
 output = collector.execute(command)
 output = output.split("\n")
@@ -58,7 +59,7 @@ time.sleep(DTPWAIT)
 
 # discover vlans
 collector.logger.debug("Extracting VLAN IDs on interface {}, sniffing 802.1Q tagged packets for {} seconds".format(iface, TAGSEC))
-command = '''sudo tshark -a duration:$TAGSEC -i $INT -Y "vlan" -x -V 2>&1 |grep -o " = ID: .*" |awk '{ print $NF }' | sort --unique'''
+command = '''sudo tshark -a duration:$TAGSEC -i $INT -Y "vlan" -x -V 2>&1 | grep -o " = ID: .*" | awk '{ print $NF }' | sort --unique'''
 command = command.replace("$TAGSEC", str(TAGSEC))
 command = command.replace("$INT", iface)
 vlan_ids = collector.execute(command)
@@ -67,48 +68,24 @@ if not vlan_ids:
     collector.close()
     yersinia.kill()
     exit()
+collector.logger.debug("Vlan(s) found")
 vlan_ids = vlan_ids.split("\n")
 vlan_ids = [string for string in vlan_ids if string != ""]
 
-# arp scan vlans for hosts
-#IP_ADDRESS = "10.10.1.0/24"
-#addrs = netifaces.ifaddresses(iface)[netifaces.AF_INET]
-#addr = addrs[0]
-#ip_addr = addr['addr']
-#subnet = addr['netmask']
-#net = str(ipaddress.ip_network('{}/{}'.format(ip_addr, subnet), strict=False))
-
+# scan vlans for hosts
 for vlan in vlan_ids:
-
-    collector.logger.debug("Adding vlan {} to interface {}".format(vlan, iface))
+    collector.logger.debug("Adding vlan {} to interface {}, waiting {} seconds".format(vlan, iface, VLANWAIT))
     command = "sudo vconfig add {} {} 2>&1".format(iface, vlan)
     null = collector.execute(command)
+    time.sleep(VLANWAIT)
 
-    net = None
-    timer = 0
-    time_limit = 20
-    while timer < time_limit:
-        try:
-            addrs = netifaces.ifaddresses(iface+"."+vlan)[netifaces.AF_INET]
-            addr = addrs[0]
-            ip_addr = addr['addr']
-            subnet = addr['netmask']
-            net = str(ipaddress.ip_network('{}/{}'.format(ip_addr, subnet), strict=False))
-            break
-        except KeyError:
-            time.sleep(1)
-            timer += 1
-    if net == None:
-        continue
-
-    collector.logger.debug("Scanning for hosts on vlan {}, with IP {}".format(vlan, net))
-    #command = '''sudo arp-scan -Q {} -I {} {} -t 500 2>&1 |grep "802.1Q VLAN="'''.format(vlan, iface+"."+vlan, net)
-    collector.logger.debug("Broadcasting to 255.255.255.255 network")
-    broadcast_proc = subprocess.Popen("ping -I {}.{} -b 255.255.255.255 2>&1".format(iface, vlan), shell=True, stdout=subprocess.PIPE)
+    collector.logger.debug("Scanning for hosts on vlan {}, with interface {}".format(vlan, iface+"."+vlan))
     command = "sudo netdiscover -N -P -i {}.{}".format(iface, vlan)
     scan_results = collector.execute(command, timeout = 60)
-    collector.logger.error(scan_results)
-    broadcast_proc.kill()
+    if scan_results:
+        collector.logger.debug("Host(s) discovered on vlan {}".format(vlan))
+    else:
+        collector.logger.debug("No hosts discovered on vlan {}".format(vlan))
 
     output = scan_results.split("\n")
     
@@ -132,7 +109,8 @@ for vlan in vlan_ids:
         # MAC Address
         mac_address = i[1]
         parsed_output["MAC"] = mac_address
-
+        
+        # VLAN
         parsed_output["VLAN"] = vlan
 
         # Hostname
@@ -146,24 +124,12 @@ for vlan in vlan_ids:
 
         collector.publish(parsed_output)
 
-    '''
-    scan_results = scan_results.split("\n")
-    scan_results = [string for string in scan_results if string != ""]
-    for result in scan_results:
-        parsed_output = {}
-        result = result.split("\t")
-        parsed_output["IP"] = result[0]
-        parsed_output["MAC"] = result[1]
-        parsed_output["VLAN"] = vlan
-        parsed_output["HOST_INFORMATION"] = result[2]
-        collector.publish(parsed_output)
-    '''
-    collector.logger.debug("Removing vlan {} from interface {}".format(vlan, iface))
+    collector.logger.debug("Removing vlan {} from interface {}, waiting {} seconds".format(vlan, iface, VLANWAIT))
     command = "sudo vconfig rem {} 2>&1".format(iface+"."+vlan)
     null = collector.execute(command)
+    time.sleep(VLANWAIT)
     
-    
-# bring down yersinia process
+# bring down yersinia process and exit
 yersinia.kill()
-
 collector.close()
+

@@ -1,5 +1,6 @@
 ---
 
+# Digital Hydrant 2020
 # YAML configuration file for managing collectors
 # used by scheduler.py to schedule collector execution and load parameters, additional data, etc
 

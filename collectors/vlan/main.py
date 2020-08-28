@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
 # vlan collector utility, find vlans and perform an arp scan
 # script will run through once, and store gathered data in the database
 # command utility to scrape: tshark yersinia arp-scan

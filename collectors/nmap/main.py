@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
 # NMAP collector utility, find hosts, and port scan hosts
 # script will run through once, and store gathered data in the database
 # command utility to scrape: sudo nmap -sn <interface IP>

@@ -1,7 +1,6 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config.global_config as gc
-
 import sqlite3
 import socket
 import subprocess
@@ -9,6 +8,7 @@ import datetime
 import yaml
 import logging
 
+# Digital Hydrant 2020 
 # Collector object class definition
 # contains all the base functions needed for interfacing with the Digital Hydrant system
 # used for reducing code repetitiveness and consolidating code
@@ -132,3 +132,4 @@ class Collector:
         self.logger.debug("Closing out")
         self.db_connection.commit()
         self.db_connection.close()
+

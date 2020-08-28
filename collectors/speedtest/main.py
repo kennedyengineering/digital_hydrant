@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
 # network speed test collector utility, tests the upload/download speed of the network
 # script will run through once, and store gathered data in the database
 # command utility to scrape: speedtest-cli --simple

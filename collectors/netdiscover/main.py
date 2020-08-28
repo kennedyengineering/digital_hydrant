@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
 # hydrant utility, netdiscover ARP scan for reachable hosts
 # script will run through once, and store gathered data in the database
 # command utility to scrape: sudo netdiscover -N -P

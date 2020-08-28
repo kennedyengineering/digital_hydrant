@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
 # hydra collector utility, create target list from netdiscover data and test against default credential word list
 # script will run through once, and store gathered data in the database
 # command utility to scrape: hydra

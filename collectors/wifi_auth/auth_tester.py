@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
 # hydrant utility, find the time it takes for a wireless access point to authenticate and connect to the internet
 # script will run through once, and store gathered data in the database
 # command utility to scrape: None -- using timers

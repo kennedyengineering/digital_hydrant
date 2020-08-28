@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
 # launcher for auth_tester.py, the actual collector
 
 import yaml

@@ -81,7 +81,7 @@ for vlan in vlan_ids:
 
     collector.logger.debug("Scanning for hosts on vlan {}, with interface {}".format(vlan, iface+"."+vlan))
     command = "sudo netdiscover -N -P -i {}.{}".format(iface, vlan)
-    scan_results = collector.execute(command, timeout = 60)
+    scan_results = collector.execute(command, timeout = 90)
     if scan_results:
         collector.logger.debug("Host(s) discovered on vlan {}".format(vlan))
     else:

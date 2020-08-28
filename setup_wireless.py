@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
+# setup_wireless.py ensures that all wireless interfaces are operational before launching Digital Hydrant
+# necessary because on some distributions, the wireless interface may not be automatically brought up
+
 import logging
 import os
 import config.global_config as gc
 import subprocess
-
-# setup wireless utility script
-# ensures that all wireless interfaces are operational before launching Digital Hydrant
-
 
 def setup_wireless():
     # create logger objects and configure
@@ -48,3 +48,4 @@ def setup_wireless():
         logger.info("Enable wireless is disabled in the configuration, continuing")
 
     return 1
+

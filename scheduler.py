@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
+# scheduler.py contains Utility and Scheduler objects
+# utilities represent the information needed to properly run a collector
+# the scheduler contains information on which utility to activate and when
+
 import os
 from os import listdir
 from os.path import isfile, isdir, join
@@ -99,8 +104,8 @@ logger.info("Starting Scheduler")
 
 # load collector directory path names
 # directories to be not added to the collector dir list
-dir_blacklist = ['__pycache__', 'speedtest', 'hydra', 'nmap', 'lldp', 'netdiscover', 'wifi_auth', 'wifi_quality', 'dhcp']
-#dir_blacklist = ['__pycache__']
+#dir_blacklist = ['__pycache__', 'speedtest', 'hydra', 'nmap', 'lldp', 'netdiscover', 'wifi_auth', 'wifi_quality', 'dhcp']  # for development purposes, collectors that should not be loaded are in the list
+dir_blacklist = ['__pycache__']
 
 dir_list = [f for f in listdir("collectors") if isdir(join("collectors", f)) and f not in dir_blacklist]
 
@@ -117,3 +122,4 @@ while 1:
     if interrupted:
         logger.critical("Main loop interrupted, exiting")
         break
+

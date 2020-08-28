@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
+# post_database.py contains a queue server for collectors to submit which database entry is ready for uploading to the web API/interface
+# it then finds and uploads the database entry to the web API/interface
+# entries will be marked 0 = not uploaded, 1 = uploaded, 3 = error uploading
+
 import sqlite3
 import sys
 import re
@@ -35,8 +40,6 @@ def signal_handler(signal, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 interrupted = False
-
-# hydrant script to publish database tables to the web API
 
 connection = sqlite3.connect(gc.drive_path+"/"+gc.db_name)
 cursor = connection.cursor()

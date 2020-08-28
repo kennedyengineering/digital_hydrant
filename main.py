@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
+# main.py is the main launcher for Digital Hydrant
+# it first sets up the hardware, such as USB and Wireless
+# and then spawns and keeps track of daemon processes
+
 import config.global_config as gc
 import os
 import setup_usb as usb
@@ -17,9 +22,7 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 interrupted = False
 
-# main launcher for Digital Hydrant
 # configure hardware and then launch the software
-
 if gc.enable_drive:
     usb_status = usb.setup_usb()
     if usb_status == 0:

@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
+# Digital Hydrant 2020
+# setup_usb.py is the python equivallent of the bash script setup_usb.sh
+# its purpose is to automate the discovery, mounting, formating, and encryption/decryption of USB mass storage drives
+# the USB drive will then be usable by Digital Hydrant for storing database and log files
+# the main function, setup_usb(), can be called by itself to allow developers easy access the USB drive 
+
 import os
 import config.global_config as gc
 import subprocess
-
-# setup USB utility script
-# ensures that the external USB storage is mounted and operational before launching Digital Hydrant
-
 
 def setup_usb():
     # main method
